@@ -6,11 +6,10 @@ package jwt
 // 我们需要修改默认的 TokenExtractor
 
 import (
-    "testing"
-
     "github.com/kataras/iris/v12"
     "github.com/kataras/iris/v12/context"
     "github.com/kataras/iris/v12/httptest"
+    "testing"
 )
 
 type Response struct {

@@ -3,14 +3,11 @@ package jwt
 import (
     "errors"
     "fmt"
-    "strings"
-
     "github.com/dgrijalva/jwt-go"
-
-    "time"
-
     "github.com/kataras/iris/v12"
     "github.com/kataras/iris/v12/context"
+    "strings"
+    "time"
 )
 
 type (
