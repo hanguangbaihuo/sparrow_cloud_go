@@ -41,6 +41,12 @@ var (
     SigningMethodHS512 = jwt.SigningMethodHS512
 )
 
+var (
+    SigningMethodRS256 = jwt.SigningMethodRS256
+    SigningMethodRS384 = jwt.SigningMethodRS384
+    SigningMethodRS512 = jwt.SigningMethodRS512
+)
+
 // ECDSA - EC256 and company.
 var (
     SigningMethodES256 = jwt.SigningMethodES256
