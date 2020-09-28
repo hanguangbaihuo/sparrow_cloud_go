@@ -1,6 +1,8 @@
 package restclient
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -14,7 +16,7 @@ type Response struct {
 	Code int
 }
 
-func request(method string, serviceAddr string, apiPath string, timeout int64, payload string, kwarg map[string]string) (Response, error) {
+func request(method string, serviceAddr string, apiPath string, timeout int64, payload interface{}, kwarg map[string]string) (Response, error) {
 	var protocol string
 	protocol, ok := kwarg["protocol"]
 	if !ok {
@@ -33,7 +35,11 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 			},
 		},
 	}
-	body := strings.NewReader(payload)
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return Response{}, err
+	}
+	body := bytes.NewReader(data)
 	req, err := http.NewRequest(strings.ToUpper(method), destURL, body)
 	if err != nil {
 		return Response{}, err
@@ -84,27 +90,27 @@ func parseTimeout(kwargs ...map[string]string) (map[string]string, int64) {
 	return kwarg, timeout
 }
 
-func Get(serviceAddr string, apiPath string, payload string, kwargs ...map[string]string) (Response, error) {
+func Get(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("GET", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Post(serviceAddr string, apiPath string, payload string, kwargs ...map[string]string) (Response, error) {
+func Post(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("POST", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Put(serviceAddr string, apiPath string, payload string, kwargs ...map[string]string) (Response, error) {
+func Put(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("PUT", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Patch(serviceAddr string, apiPath string, payload string, kwargs ...map[string]string) (Response, error) {
+func Patch(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("PATCH", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Delete(serviceAddr string, apiPath string, payload string, kwargs ...map[string]string) (Response, error) {
+func Delete(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("DELETE", serviceAddr, apiPath, timeout, payload, kwarg)
 }
