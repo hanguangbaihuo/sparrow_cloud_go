@@ -72,7 +72,7 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if err != nil {
 		return Response{}, err
 	}
-	// fmt.Println(string(body))
+	// fmt.Println(string(resBody))
 	return Response{string(resBody), response.StatusCode}, nil
 }
 

@@ -4,8 +4,6 @@ github.com/BurntSushi/toml
 github.com/CloudyKit/fastprinter
 # github.com/CloudyKit/jet/v3 v3.0.0
 github.com/CloudyKit/jet/v3
-# github.com/CloudyKit/jet/v4 v4.1.0
-github.com/CloudyKit/jet/v4
 # github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398
 github.com/Shopify/goreferrer
 # github.com/ajg/form v1.5.1
@@ -32,12 +30,8 @@ github.com/eknkc/amber/parser
 github.com/fatih/structs
 # github.com/gavv/httpexpect v2.0.0+incompatible
 github.com/gavv/httpexpect
-# github.com/golang/protobuf v1.4.1
-github.com/golang/protobuf/proto
 # github.com/google/go-querystring v1.0.0
 github.com/google/go-querystring/query
-# github.com/google/uuid v1.1.2-0.20200519141726-cb32006e483f
-github.com/google/uuid
 # github.com/gorilla/css v1.0.0
 github.com/gorilla/css/scanner
 # github.com/gorilla/websocket v1.4.2
@@ -54,38 +48,8 @@ github.com/iris-contrib/pongo2
 github.com/iris-contrib/schema
 # github.com/json-iterator/go v1.1.10
 github.com/json-iterator/go
-# github.com/kataras/blocks v0.0.2
-github.com/kataras/blocks
 # github.com/kataras/golog v0.1.2
 github.com/kataras/golog
-# github.com/kataras/iris v0.0.1
-github.com/kataras/iris
-github.com/kataras/iris/cache
-github.com/kataras/iris/cache/cfg
-github.com/kataras/iris/cache/client
-github.com/kataras/iris/cache/client/rule
-github.com/kataras/iris/cache/entry
-github.com/kataras/iris/cache/ruleset
-github.com/kataras/iris/cache/uri
-github.com/kataras/iris/context
-github.com/kataras/iris/core/errgroup
-github.com/kataras/iris/core/handlerconv
-github.com/kataras/iris/core/host
-github.com/kataras/iris/core/memstore
-github.com/kataras/iris/core/netutil
-github.com/kataras/iris/core/router
-github.com/kataras/iris/hero
-github.com/kataras/iris/i18n
-github.com/kataras/iris/macro
-github.com/kataras/iris/macro/handler
-github.com/kataras/iris/macro/interpreter/ast
-github.com/kataras/iris/macro/interpreter/lexer
-github.com/kataras/iris/macro/interpreter/parser
-github.com/kataras/iris/macro/interpreter/token
-github.com/kataras/iris/middleware/logger
-github.com/kataras/iris/middleware/recover
-github.com/kataras/iris/sessions
-github.com/kataras/iris/view
 # github.com/kataras/iris/v12 v12.1.8
 github.com/kataras/iris/v12
 github.com/kataras/iris/v12/cache
@@ -118,13 +82,9 @@ github.com/kataras/pio
 github.com/kataras/pio/terminal
 # github.com/kataras/sitemap v0.0.5
 github.com/kataras/sitemap
-# github.com/kataras/tunnel v0.0.1
-github.com/kataras/tunnel
 # github.com/klauspost/compress v1.10.11
 github.com/klauspost/compress/flate
 github.com/klauspost/compress/gzip
-github.com/klauspost/compress/s2
-github.com/klauspost/compress/snappy
 github.com/klauspost/compress/zlib
 # github.com/microcosm-cc/bluemonday v1.0.4
 github.com/microcosm-cc/bluemonday
@@ -136,8 +96,6 @@ github.com/modern-go/reflect2
 github.com/moul/http2curl
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/russross/blackfriday/v2 v2.0.1
-github.com/russross/blackfriday/v2
 # github.com/ryanuber/columnize v2.1.2+incompatible
 github.com/ryanuber/columnize
 # github.com/schollz/closestmatch v2.1.0+incompatible
@@ -155,13 +113,6 @@ github.com/valyala/bytebufferpool
 github.com/valyala/fasthttp
 github.com/valyala/fasthttp/fasthttputil
 github.com/valyala/fasthttp/stackless
-# github.com/vmihailenco/msgpack/v5 v5.0.0-beta.1
-github.com/vmihailenco/msgpack/v5
-github.com/vmihailenco/msgpack/v5/codes
-# github.com/vmihailenco/tagparser v0.1.1
-github.com/vmihailenco/tagparser
-github.com/vmihailenco/tagparser/internal
-github.com/vmihailenco/tagparser/internal/parser
 # github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f
 github.com/xeipuuv/gojsonpointer
 # github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415
@@ -170,8 +121,6 @@ github.com/xeipuuv/gojsonreference
 github.com/xeipuuv/gojsonschema
 # github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 github.com/yalp/jsonpath
-# github.com/yosssi/ace v0.0.5
-github.com/yosssi/ace
 # github.com/yudai/gojsondiff v1.0.0
 github.com/yudai/gojsondiff
 github.com/yudai/gojsondiff/formatter
@@ -181,7 +130,6 @@ github.com/yudai/golcs
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
 # golang.org/x/net v0.0.0-20200822124328-c89045814202
-golang.org/x/net/context
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/idna
@@ -189,7 +137,6 @@ golang.org/x/net/publicsuffix
 # golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
-golang.org/x/sys/windows
 # golang.org/x/text v0.3.3
 golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
@@ -199,49 +146,6 @@ golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
-golang.org/x/time/rate
-# google.golang.org/appengine v1.6.5
-google.golang.org/appengine
-google.golang.org/appengine/datastore
-google.golang.org/appengine/datastore/internal/cloudkey
-google.golang.org/appengine/datastore/internal/cloudpb
-google.golang.org/appengine/internal
-google.golang.org/appengine/internal/app_identity
-google.golang.org/appengine/internal/base
-google.golang.org/appengine/internal/datastore
-google.golang.org/appengine/internal/log
-google.golang.org/appengine/internal/modules
-google.golang.org/appengine/internal/remote_api
-# google.golang.org/protobuf v1.25.0
-google.golang.org/protobuf/encoding/protojson
-google.golang.org/protobuf/encoding/prototext
-google.golang.org/protobuf/encoding/protowire
-google.golang.org/protobuf/internal/descfmt
-google.golang.org/protobuf/internal/descopts
-google.golang.org/protobuf/internal/detrand
-google.golang.org/protobuf/internal/encoding/defval
-google.golang.org/protobuf/internal/encoding/json
-google.golang.org/protobuf/internal/encoding/messageset
-google.golang.org/protobuf/internal/encoding/tag
-google.golang.org/protobuf/internal/encoding/text
-google.golang.org/protobuf/internal/errors
-google.golang.org/protobuf/internal/fieldsort
-google.golang.org/protobuf/internal/filedesc
-google.golang.org/protobuf/internal/filetype
-google.golang.org/protobuf/internal/flags
-google.golang.org/protobuf/internal/genid
-google.golang.org/protobuf/internal/impl
-google.golang.org/protobuf/internal/mapsort
-google.golang.org/protobuf/internal/pragma
-google.golang.org/protobuf/internal/set
-google.golang.org/protobuf/internal/strs
-google.golang.org/protobuf/internal/version
-google.golang.org/protobuf/proto
-google.golang.org/protobuf/reflect/protoreflect
-google.golang.org/protobuf/reflect/protoregistry
-google.golang.org/protobuf/runtime/protoiface
-google.golang.org/protobuf/runtime/protoimpl
 # gopkg.in/ini.v1 v1.60.1
 gopkg.in/ini.v1
 # gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
