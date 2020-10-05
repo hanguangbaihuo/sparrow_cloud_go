@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-lib/metrics"
 
 	"github.com/uber/jaeger-client-go"
@@ -12,11 +11,11 @@ import (
 	jaegerlog "github.com/uber/jaeger-client-go/log"
 )
 
-//DefaultTracer is for setting Global Tracer.
+//InitGlobalTracer is for setting Global Tracer.
 // you must do the function in main() function like follow:
-//   _, closer := DefaultTracer("your_service_name")
+//   closer := InitGlobalTracer("your_service_name")
 //   defer closer.Close()
-func DefaultTracer(serviceName string) (opentracing.Tracer, io.Closer) {
+func InitGlobalTracer(serviceName string) io.Closer {
 	cfg := jaegercfg.Configuration{
 		ServiceName: serviceName,
 		Sampler: &jaegercfg.SamplerConfig{
@@ -34,14 +33,16 @@ func DefaultTracer(serviceName string) (opentracing.Tracer, io.Closer) {
 	jMetricsFactory := metrics.NullFactory
 
 	// Initialize tracer with a logger and a metrics factory
-	tracer, closer, err := cfg.NewTracer(
+	// Set the singleton opentracing.Tracer with the Jaeger tracer.
+	closer, err := cfg.InitGlobalTracer(
+		serviceName,
 		jaegercfg.Logger(jLogger),
 		jaegercfg.Metrics(jMetricsFactory),
 	)
+
 	if err != nil {
 		panic(fmt.Sprintf("ERROR: init Jaeger Opentracing: %v\n", err))
 	}
-	// Set the singleton opentracing.Tracer with the Jaeger tracer.
-	opentracing.SetGlobalTracer(tracer)
-	return tracer, closer
+
+	return closer
 }
