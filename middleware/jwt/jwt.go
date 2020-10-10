@@ -1,57 +1,58 @@
 package jwt
 
 import (
-    "errors"
-    "fmt"
-    "github.com/dgrijalva/jwt-go"
-    "github.com/kataras/iris/v12"
-    "github.com/kataras/iris/v12/context"
-    "strings"
-    "time"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 )
 
 type (
-    // Token for JWT. Different fields will be used depending on whether you're
-    // creating or parsing/verifying a token.
-    //
-    // A type alias for jwt.Token.
-    Token = jwt.Token
-    // MapClaims type that uses the map[string]interface{} for JSON decoding
-    // This is the default claims type if you don't supply one
-    //
-    // A type alias for jwt.MapClaims.
-    MapClaims = jwt.MapClaims
-    // Claims must just have a Valid method that determines
-    // if the token is invalid for any supported reason.
-    //
-    // A type alias for jwt.Claims.
-    Claims = jwt.Claims
+	// Token for JWT. Different fields will be used depending on whether you're
+	// creating or parsing/verifying a token.
+	//
+	// A type alias for jwt.Token.
+	Token = jwt.Token
+	// MapClaims type that uses the map[string]interface{} for JSON decoding
+	// This is the default claims type if you don't supply one
+	//
+	// A type alias for jwt.MapClaims.
+	MapClaims = jwt.MapClaims
+	// Claims must just have a Valid method that determines
+	// if the token is invalid for any supported reason.
+	//
+	// A type alias for jwt.Claims.
+	Claims = jwt.Claims
 )
 
 // Shortcuts to create a new Token.
 var (
-    NewToken           = jwt.New
-    NewTokenWithClaims = jwt.NewWithClaims
+	NewToken           = jwt.New
+	NewTokenWithClaims = jwt.NewWithClaims
 )
 
 // HS256 and company.
 var (
-    SigningMethodHS256 = jwt.SigningMethodHS256
-    SigningMethodHS384 = jwt.SigningMethodHS384
-    SigningMethodHS512 = jwt.SigningMethodHS512
+	SigningMethodHS256 = jwt.SigningMethodHS256
+	SigningMethodHS384 = jwt.SigningMethodHS384
+	SigningMethodHS512 = jwt.SigningMethodHS512
 )
 
 var (
-    SigningMethodRS256 = jwt.SigningMethodRS256
-    SigningMethodRS384 = jwt.SigningMethodRS384
-    SigningMethodRS512 = jwt.SigningMethodRS512
+	SigningMethodRS256 = jwt.SigningMethodRS256
+	SigningMethodRS384 = jwt.SigningMethodRS384
+	SigningMethodRS512 = jwt.SigningMethodRS512
 )
 
 // ECDSA - EC256 and company.
 var (
-    SigningMethodES256 = jwt.SigningMethodES256
-    SigningMethodES384 = jwt.SigningMethodES384
-    SigningMethodES512 = jwt.SigningMethodES512
+	SigningMethodES256 = jwt.SigningMethodES256
+	SigningMethodES384 = jwt.SigningMethodES384
+	SigningMethodES512 = jwt.SigningMethodES512
 )
 
 // A function called whenever an error is encountered
@@ -66,211 +67,225 @@ type TokenExtractor func(context.Context) (string, error)
 
 // Middleware the middleware for JSON Web tokens authentication method
 type Middleware struct {
-    Config Config
+	Config Config
 }
 
 // OnError is the default error handler.
 // Use it to change the behavior for each error.
 // See `Config.ErrorHandler`.
 func OnError(ctx context.Context, err error) {
-    if err == nil {
-        return
-    }
+	if err == nil {
+		return
+	}
 
-    ctx.StopExecution()
-    ctx.StatusCode(iris.StatusUnauthorized)
-    ctx.WriteString(err.Error())
+	ctx.StopExecution()
+	ctx.StatusCode(iris.StatusUnauthorized)
+	ctx.WriteString(err.Error())
 }
 
 // New constructs a new Secure instance with supplied options.
 func New(cfg ...Config) *Middleware {
 
-    var c Config
-    if len(cfg) == 0 {
-        c = Config{}
-    } else {
-        c = cfg[0]
-    }
+	var c Config
+	if len(cfg) == 0 {
+		c = Config{}
+	} else {
+		c = cfg[0]
+	}
 
-    if c.ContextKey == "" {
-        c.ContextKey = DefaultContextKey
-    }
+	if c.ContextKey == "" {
+		c.ContextKey = DefaultContextKey
+	}
 
-    if c.ErrorHandler == nil {
-        c.ErrorHandler = OnError
-    }
+	if c.ErrorHandler == nil {
+		c.ErrorHandler = OnError
+	}
 
-    if c.Extractor == nil {
-        // 默认的 token获取方式
-        c.Extractor = FromAuthHeaderToken
-    }
+	if c.Extractor == nil {
+		// 默认的 token获取方式
+		c.Extractor = FromAuthHeaderToken
+	}
 
-    return &Middleware{Config: c}
+	return &Middleware{Config: c}
+}
+
+// DefaultJwtMiddleware return default iris jwt middleware
+// use like this:
+// jwtMiddleware := DefultJwtMiddleware("your_jwt_secret")
+// app.Use(jwtMiddleware.Serve)
+func DefaultJwtMiddleware(jwtSecret string) *Middleware {
+	return New(Config{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return []byte(jwtSecret), nil
+		},
+		// CredentialsOptional: true,
+		SigningMethod: SigningMethodHS256,
+	})
 }
 
 func logf(ctx iris.Context, format string, args ...interface{}) {
-    ctx.Application().Logger().Debugf(format, args...)
+	ctx.Application().Logger().Debugf(format, args...)
 }
 
 // Get returns the user (&token) information for this client/request
 func (m *Middleware) Get(ctx context.Context) *jwt.Token {
-    return ctx.Values().Get(m.Config.ContextKey).(*jwt.Token)
+	return ctx.Values().Get(m.Config.ContextKey).(*jwt.Token)
 }
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
-    if err := m.CheckJWT(ctx); err != nil {
-        m.Config.ErrorHandler(ctx, err)
-        return
-    }
-    // If everything ok then call next.
-    ctx.Next()
+	if err := m.CheckJWT(ctx); err != nil {
+		m.Config.ErrorHandler(ctx, err)
+		return
+	}
+	// If everything ok then call next.
+	ctx.Next()
 }
 
 func FromAuthHeaderToken(ctx context.Context) (string, error) {
-    authHeader := ctx.GetHeader("Authorization")
-    if authHeader == "" {
-        return "", nil // No error, just no token
-    }
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		return "", nil // No error, just no token
+	}
 
-    // TODO: Make this a bit more robust, parsing-wise
-    authHeaderParts := strings.Split(authHeader, " ")
-    if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "token" {
-        return "", fmt.Errorf("Authorization header format must be Token {token}")
-    }
+	// TODO: Make this a bit more robust, parsing-wise
+	authHeaderParts := strings.Split(authHeader, " ")
+	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "token" {
+		return "", fmt.Errorf("Authorization header format must be Token {token}")
+	}
 
-    return authHeaderParts[1], nil
+	return authHeaderParts[1], nil
 }
 
 // FromAuthHeader is a "TokenExtractor" that takes a give context and extracts
 // the JWT token from the Authorization header.
 func FromAuthHeader(ctx context.Context) (string, error) {
-    authHeader := ctx.GetHeader("Authorization")
-    if authHeader == "" {
-        return "", nil // No error, just no token
-    }
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		return "", nil // No error, just no token
+	}
 
-    // TODO: Make this a bit more robust, parsing-wise
-    authHeaderParts := strings.Split(authHeader, " ")
-    if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
-        return "", fmt.Errorf("Authorization header format must be Bearer {token}")
-    }
+	// TODO: Make this a bit more robust, parsing-wise
+	authHeaderParts := strings.Split(authHeader, " ")
+	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "bearer" {
+		return "", fmt.Errorf("Authorization header format must be Bearer {token}")
+	}
 
-    return authHeaderParts[1], nil
+	return authHeaderParts[1], nil
 }
 
 // FromParameter returns a function that extracts the token from the specified
 // query string parameter
 func FromParameter(param string) TokenExtractor {
-    return func(ctx context.Context) (string, error) {
-        return ctx.URLParam(param), nil
-    }
+	return func(ctx context.Context) (string, error) {
+		return ctx.URLParam(param), nil
+	}
 }
 
 // FromFirst returns a function that runs multiple token extractors and takes the
 // first token it finds
 func FromFirst(extractors ...TokenExtractor) TokenExtractor {
-    return func(ctx context.Context) (string, error) {
-        for _, ex := range extractors {
-            token, err := ex(ctx)
-            if err != nil {
-                return "", err
-            }
-            if token != "" {
-                return token, nil
-            }
-        }
-        return "", nil
-    }
+	return func(ctx context.Context) (string, error) {
+		for _, ex := range extractors {
+			token, err := ex(ctx)
+			if err != nil {
+				return "", err
+			}
+			if token != "" {
+				return token, nil
+			}
+		}
+		return "", nil
+	}
 }
 
 var (
-    // ErrTokenMissing is the error value that it's returned when
-    // a token is not found based on the token extractor.
-    ErrTokenMissing = errors.New("required authorization token not found")
+	// ErrTokenMissing is the error value that it's returned when
+	// a token is not found based on the token extractor.
+	ErrTokenMissing = errors.New("required authorization token not found")
 
-    // ErrTokenInvalid is the error value that it's returned when
-    // a token is not valid.
-    ErrTokenInvalid = errors.New("token is invalid")
+	// ErrTokenInvalid is the error value that it's returned when
+	// a token is not valid.
+	ErrTokenInvalid = errors.New("token is invalid")
 
-    // ErrTokenExpired is the error value that it's returned when
-    // a token value is found and it's valid but it's expired.
-    ErrTokenExpired = errors.New("token is expired")
+	// ErrTokenExpired is the error value that it's returned when
+	// a token value is found and it's valid but it's expired.
+	ErrTokenExpired = errors.New("token is expired")
 )
 
 var jwtParser = new(jwt.Parser)
 
 // CheckJWT the main functionality, checks for token
 func (m *Middleware) CheckJWT(ctx context.Context) error {
-    if !m.Config.EnableAuthOnOptions {
-        if ctx.Method() == iris.MethodOptions {
-            return nil
-        }
-    }
+	if !m.Config.EnableAuthOnOptions {
+		if ctx.Method() == iris.MethodOptions {
+			return nil
+		}
+	}
 
-    // Use the specified token extractor to extract a token from the request
-    token, err := m.Config.Extractor(ctx)
+	// Use the specified token extractor to extract a token from the request
+	token, err := m.Config.Extractor(ctx)
 
-    // If debugging is turned on, log the outcome
-    if err != nil {
-        logf(ctx, "Error extracting JWT: %v", err)
-        return err
-    }
+	// If debugging is turned on, log the outcome
+	if err != nil {
+		logf(ctx, "Error extracting JWT: %v", err)
+		return err
+	}
 
-    logf(ctx, "Token extracted: %s", token)
+	logf(ctx, "Token extracted: %s", token)
 
-    // If the token is empty...
-    if token == "" {
-        // Check if it was required
-        if m.Config.CredentialsOptional {
-            logf(ctx, "No credentials found (CredentialsOptional=true)")
-            // No error, just no token (and that is ok given that CredentialsOptional is true)
-            return nil
-        }
+	// If the token is empty...
+	if token == "" {
+		// Check if it was required
+		if m.Config.CredentialsOptional {
+			logf(ctx, "No credentials found (CredentialsOptional=true)")
+			// No error, just no token (and that is ok given that CredentialsOptional is true)
+			return nil
+		}
 
-        // If we get here, the required token is missing
-        logf(ctx, "Error: No credentials found (CredentialsOptional=false)")
-        return ErrTokenMissing
-    }
+		// If we get here, the required token is missing
+		logf(ctx, "Error: No credentials found (CredentialsOptional=false)")
+		return ErrTokenMissing
+	}
 
-    // Now parse the token
+	// Now parse the token
 
-    parsedToken, err := jwtParser.Parse(token, m.Config.ValidationKeyGetter)
-    // Check if there was an error in parsing...
-    if err != nil {
-        logf(ctx, "Error parsing token: %v", err)
-        return err
-    }
+	parsedToken, err := jwtParser.Parse(token, m.Config.ValidationKeyGetter)
+	// Check if there was an error in parsing...
+	if err != nil {
+		logf(ctx, "Error parsing token: %v", err)
+		return err
+	}
 
-    if m.Config.SigningMethod != nil && m.Config.SigningMethod.Alg() != parsedToken.Header["alg"] {
-        err := fmt.Errorf("Expected %s signing method but token specified %s",
-            m.Config.SigningMethod.Alg(),
-            parsedToken.Header["alg"])
-        logf(ctx, "Error validating token algorithm: %v", err)
-        return err
-    }
+	if m.Config.SigningMethod != nil && m.Config.SigningMethod.Alg() != parsedToken.Header["alg"] {
+		err := fmt.Errorf("Expected %s signing method but token specified %s",
+			m.Config.SigningMethod.Alg(),
+			parsedToken.Header["alg"])
+		logf(ctx, "Error validating token algorithm: %v", err)
+		return err
+	}
 
-    // Check if the parsed token is valid...
-    if !parsedToken.Valid {
-        logf(ctx, "Token is invalid")
-        m.Config.ErrorHandler(ctx, ErrTokenInvalid)
-        return ErrTokenInvalid
-    }
+	// Check if the parsed token is valid...
+	if !parsedToken.Valid {
+		logf(ctx, "Token is invalid")
+		m.Config.ErrorHandler(ctx, ErrTokenInvalid)
+		return ErrTokenInvalid
+	}
 
-    if m.Config.Expiration {
-        if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
-            if expired := claims.VerifyExpiresAt(time.Now().Unix(), true); !expired {
-                logf(ctx, "Token is expired")
-                return ErrTokenExpired
-            }
-        }
-    }
+	if m.Config.Expiration {
+		if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
+			if expired := claims.VerifyExpiresAt(time.Now().Unix(), true); !expired {
+				logf(ctx, "Token is expired")
+				return ErrTokenExpired
+			}
+		}
+	}
 
-    logf(ctx, "JWT: %v", parsedToken)
+	logf(ctx, "JWT: %v", parsedToken)
 
-    // If we get here, everything worked and we can set the
-    // user property in context.
-    ctx.Values().Set(m.Config.ContextKey, parsedToken)
+	// If we get here, everything worked and we can set the
+	// user property in context.
+	ctx.Values().Set(m.Config.ContextKey, parsedToken)
 
-    return nil
+	return nil
 }
