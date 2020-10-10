@@ -10,7 +10,7 @@
 	
     func processGet(ctx iris.Context) {
 	    serviceAddr := "sparrow-product-svc:8001"
-		// serviceAddr := "127.0.0.1:8001"
+	    // serviceAddr := "127.0.0.1:8001"
 	    apiPath := "/api/sparrow_products/products/show/"
 	    res, err := restclient.Get(serviceAddr, apiPath, nil)
 	    if err != nil {
