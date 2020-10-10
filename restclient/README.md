@@ -10,8 +10,9 @@
 	
     func processGet(ctx iris.Context) {
 	    serviceAddr := "sparrow-product-svc:8001"
+		// serviceAddr := "127.0.0.1:8001"
 	    apiPath := "/api/sparrow_products/products/show/"
-	    res, err := restclient.Get(ctx, serviceAddr, apiPath, nil)
+	    res, err := restclient.Get(serviceAddr, apiPath, nil)
 	    if err != nil {
 	    // do something
 	    }
@@ -32,7 +33,7 @@
 	    serviceAddr := "sparrow-product-svc:8001"
 	    apiPath := "/api/sparrow_products/products/create/"
 	    data := Data{"test", 99, 0}
-	    res, err := restclient.Post(ctx, serviceAddr, apiPath, data)
+	    res, err := restclient.Post(serviceAddr, apiPath, data)
 	    if err != nil {
 	    // do something
 	    }
@@ -42,10 +43,9 @@
 #### restclient中的方法
 
 	目前该package共有5个方法，分别是Get,Post,Put,Patch,Delete方法
-	每个方法的参数和返回值完全一样，是XXX(ctx context.Context, serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error)
+	每个方法的参数和返回值完全一样，是XXX(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error)
 	参数用途：
-	ctx：用来获取中间件中存储的数据信息，此处用来获取追踪链中的数据
-	serviceAddr：跨服务调用的服务地址，格式类似"sparrow-product-svc:8001"
+	serviceAddr：跨服务调用的服务地址，格式类似"sparrow-product-svc:8001"或者"127.0.0.1:8000"
 	apiPath：请求服务的api，格式类似"/api/sparrow_products/products/create/"
 	payload：请求服务接口所需要的数据
 	kwargs：用来或者添加一些额外信息，见下方的kwargs详解
@@ -63,7 +63,7 @@
 	
 	举例：
 	kwargs := map[string]string{"timeout":"10","operationname":"create_product"}
-	res, err := restclient.Get(ctx, serviceAddr, apiPath, nil, kwargs)
+	res, err := restclient.Get(serviceAddr, apiPath, nil, kwargs)
 
 #### 方法返回Response
 	
@@ -103,7 +103,7 @@
     func processRequest(ctx iris.Context) {
 	    serviceAddr := "sparrow-product-svc:8001"
 	    apiPath := "/api/sparrow_products/products/show/"
-	    res, err := restclient.Get(ctx, serviceAddr, apiPath, nil)
+	    res, err := restclient.Get(serviceAddr, apiPath, nil)
 	    if err != nil {
 	    // do something
 	    }
