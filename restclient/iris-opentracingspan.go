@@ -1,35 +1,22 @@
 package restclient
 
 import (
-	"github.com/kataras/iris/v12/context"
+	spaopentracing "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
 	opentracing "github.com/opentracing/opentracing-go"
 )
 
-// todo:
-// import this variable from opentracing middleware
-var activeSpanKey = "myOpenTracingSpan"
+// This file is from github.com/opentracing/opentracing-go/gocontext.go
 
-// ContextWithSpan returns a new `context.Context` that holds a reference to
-// the span. If span is nil, a new context without an active span is returned.
-func ContextWithSpan(ctx context.Context, span opentracing.Span) context.Context {
-	// if span != nil {
-	// 	if tracerWithHook, ok := span.Tracer().(TracerContextWithSpanExtension); ok {
-	// 		ctx = tracerWithHook.ContextWithSpanHook(ctx, span)
-	// 	}
-	// }
-	// return context.WithValue(ctx, activeSpanKey, span)
-	ctx.Values().Set(activeSpanKey, span)
-	return ctx
+// ContextWithSpan set the global parent span in spaopentracing middleware ActiveSpan.
+func ContextWithSpan(span opentracing.Span) {
+	spaopentracing.ActiveSpan = span
 }
 
-// SpanFromContext returns the `Span` previously associated with `ctx`, or
+// SpanFromContext returns the `Span` previously setted by opentracing middleware, or
 // `nil` if no such `Span` could be found.
 //
-// NOTE: context.Context != SpanContext: the former is Go's intra-process
-// context propagation mechanism, and the latter houses OpenTracing's per-Span
-// identity and baggage information.
-func SpanFromContext(ctx context.Context) opentracing.Span {
-	val := ctx.Values().Get(activeSpanKey)
+func SpanFromContext() opentracing.Span {
+	val := spaopentracing.ActiveSpan
 	if sp, ok := val.(opentracing.Span); ok {
 		return sp
 	}
@@ -50,8 +37,8 @@ func SpanFromContext(ctx context.Context) opentracing.Span {
 //        defer sp.Finish()
 //        ...
 //    }
-func StartSpanFromContext(ctx context.Context, operationName string, opts ...opentracing.StartSpanOption) (opentracing.Span, context.Context) {
-	return StartSpanFromContextWithTracer(ctx, opentracing.GlobalTracer(), operationName, opts...)
+func StartSpanFromContext(operationName string, opts ...opentracing.StartSpanOption) opentracing.Span {
+	return StartSpanFromContextWithTracer(opentracing.GlobalTracer(), operationName, opts...)
 }
 
 // StartSpanFromContextWithTracer starts and returns a span with `operationName`
@@ -61,8 +48,8 @@ func StartSpanFromContext(ctx context.Context, operationName string, opts ...ope
 //
 // It's behavior is identical to StartSpanFromContext except that it takes an explicit
 // tracer as opposed to using the global tracer.
-func StartSpanFromContextWithTracer(ctx context.Context, tracer opentracing.Tracer, operationName string, opts ...opentracing.StartSpanOption) (opentracing.Span, context.Context) {
-	if parentSpan := SpanFromContext(ctx); parentSpan != nil {
+func StartSpanFromContextWithTracer(tracer opentracing.Tracer, operationName string, opts ...opentracing.StartSpanOption) opentracing.Span {
+	if parentSpan := SpanFromContext(); parentSpan != nil {
 		opts = append(opts, opentracing.ChildOf(parentSpan.Context()))
 	}
 	span := tracer.StartSpan(operationName, opts...)
@@ -70,5 +57,5 @@ func StartSpanFromContextWithTracer(ctx context.Context, tracer opentracing.Trac
 	// This causes the child span to point to the wrong parent span, so don't change activeSpanKey in ctx
 	// It means every service only have two layer: input parent span and output child span
 	// return span, ContextWithSpan(ctx, span)
-	return span, ctx
+	return span
 }

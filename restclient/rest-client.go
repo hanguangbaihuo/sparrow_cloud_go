@@ -13,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kataras/iris/v12/context"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 )
@@ -23,7 +22,7 @@ type Response struct {
 	Code int
 }
 
-func request(ctx context.Context, method string, serviceAddr string, apiPath string, timeout int64, payload interface{}, kwarg map[string]string) (Response, error) {
+func request(method string, serviceAddr string, apiPath string, timeout int64, payload interface{}, kwarg map[string]string) (Response, error) {
 	var protocol string
 	protocol, ok := kwarg["protocol"]
 	if !ok {
@@ -76,7 +75,7 @@ func request(ctx context.Context, method string, serviceAddr string, apiPath str
 	if !ok {
 		operationName = destURL
 	}
-	span, _ := StartSpanFromContext(ctx, operationName)
+	span := StartSpanFromContext(operationName)
 	defer span.Finish()
 	ext.SpanKindRPCClient.Set(span)
 	ext.HTTPUrl.Set(span, destURL)
@@ -132,27 +131,27 @@ func getEnvProxy() *url.URL {
 	return nil
 }
 
-func Get(ctx context.Context, serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Get(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
-	return request(ctx, "GET", serviceAddr, apiPath, timeout, payload, kwarg)
+	return request("GET", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Post(ctx context.Context, serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Post(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
-	return request(ctx, "POST", serviceAddr, apiPath, timeout, payload, kwarg)
+	return request("POST", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Put(ctx context.Context, serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Put(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
-	return request(ctx, "PUT", serviceAddr, apiPath, timeout, payload, kwarg)
+	return request("PUT", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Patch(ctx context.Context, serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Patch(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
-	return request(ctx, "PATCH", serviceAddr, apiPath, timeout, payload, kwarg)
+	return request("PATCH", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Delete(ctx context.Context, serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Delete(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
-	return request(ctx, "DELETE", serviceAddr, apiPath, timeout, payload, kwarg)
+	return request("DELETE", serviceAddr, apiPath, timeout, payload, kwarg)
 }
