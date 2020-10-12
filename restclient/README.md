@@ -70,13 +70,11 @@
 	
 	返回的结构体如下：
 	type  Response  struct {
-		Body string
+		Body []byte
 		Code int
 	}
 	Body是返回的数据
 	Code是返回的状态码
-	
-	需要讨论是否将Body类型从string改为[]byte,便于json解析
 
 #### 本地代理
 
