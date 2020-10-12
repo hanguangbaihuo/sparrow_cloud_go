@@ -37,8 +37,12 @@ func ErrorHandler(ctx context.Context, err error) {
 // JWT middleware must be configured before this
 // only when your api need be authenticated, you should configure this middleware, otherwise do not configure it
 func IsAuthenticated(ctx context.Context) {
-	token := ctx.Values().Get(myjwt.DefaultContextKey).(*jwt.Token)
-	user, err := authenticate(token)
+	token := ctx.Values().Get(myjwt.DefaultContextKey)
+	if token == nil {
+		ErrorHandler(ctx, ErrTokenMissing)
+		return
+	}
+	user, err := authenticate(token.(*jwt.Token))
 	if err != nil {
 		ErrorHandler(ctx, err)
 		return
