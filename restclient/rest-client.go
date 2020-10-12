@@ -17,8 +17,9 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 )
 
+// Response is the response data of external request url
 type Response struct {
-	Body string
+	Body []byte
 	Code int
 }
 
@@ -97,8 +98,8 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if err != nil {
 		return Response{}, err
 	}
-	// fmt.Println(string(resBody))
-	return Response{string(resBody), response.StatusCode}, nil
+	log.Printf("%d, %s", response.StatusCode, string(resBody))
+	return Response{resBody, response.StatusCode}, nil
 }
 
 func parseTimeout(kwargs ...map[string]string) (map[string]string, int64) {
