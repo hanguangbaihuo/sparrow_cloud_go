@@ -5,6 +5,9 @@ import (
 )
 
 func authenticate(token *jwt.Token) User {
+	if token == nil {
+		return User{}
+	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		return User{}
