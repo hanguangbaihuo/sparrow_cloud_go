@@ -147,6 +147,8 @@ func (m *Middleware) Serve(ctx context.Context) {
 	ctx.Next()
 }
 
+// FromAuthHeaderToken is a "TokenExtractor" that takes a give context and extracts
+// the JWT token from the Authorization header, header key is "token".
 func FromAuthHeaderToken(ctx context.Context) (string, error) {
 	authHeader := ctx.GetHeader("Authorization")
 	if authHeader == "" {
