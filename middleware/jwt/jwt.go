@@ -80,7 +80,7 @@ func OnError(ctx context.Context, err error) {
 
 	ctx.StopExecution()
 	ctx.StatusCode(iris.StatusUnauthorized)
-	ctx.WriteString(err.Error())
+	ctx.JSON(context.Map{"message": err.Error()})
 }
 
 // New constructs a new Secure instance with supplied options.
@@ -93,9 +93,10 @@ func New(cfg ...Config) *Middleware {
 		c = cfg[0]
 	}
 
-	if c.ContextKey == "" {
-		c.ContextKey = DefaultContextKey
-	}
+	// if c.ContextKey == "" {
+	// 	c.ContextKey = DefaultContextKey
+	// }
+	c.ContextKey = DefaultContextKey
 
 	if c.ErrorHandler == nil {
 		c.ErrorHandler = OnError
@@ -134,18 +135,18 @@ func (m *Middleware) Get(ctx context.Context) *jwt.Token {
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
-	token, err := m.CheckJWT(ctx)
+	_, err := m.CheckJWT(ctx)
 	if err != nil {
 		m.Config.ErrorHandler(ctx, err)
 		return
 	}
-	user := authenticate(token)
-	logf(ctx, "User inf is %v\n", user)
-	ctx.Values().Set(DefaultUserKey, user)
+
 	// If everything ok then call next.
 	ctx.Next()
 }
 
+// FromAuthHeaderToken is a "TokenExtractor" that takes a give context and extracts
+// the JWT token from the Authorization header, header key is "token".
 func FromAuthHeaderToken(ctx context.Context) (string, error) {
 	authHeader := ctx.GetHeader("Authorization")
 	if authHeader == "" {
