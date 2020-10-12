@@ -80,7 +80,7 @@ func OnError(ctx context.Context, err error) {
 
 	ctx.StopExecution()
 	ctx.StatusCode(iris.StatusUnauthorized)
-	ctx.WriteString(err.Error())
+	ctx.JSON(context.Map{"message": err.Error()})
 }
 
 // New constructs a new Secure instance with supplied options.
