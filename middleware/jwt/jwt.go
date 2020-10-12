@@ -93,9 +93,10 @@ func New(cfg ...Config) *Middleware {
 		c = cfg[0]
 	}
 
-	if c.ContextKey == "" {
-		c.ContextKey = DefaultContextKey
-	}
+	// if c.ContextKey == "" {
+	// 	c.ContextKey = DefaultContextKey
+	// }
+	c.ContextKey = DefaultContextKey
 
 	if c.ErrorHandler == nil {
 		c.ErrorHandler = OnError
