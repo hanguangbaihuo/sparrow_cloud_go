@@ -53,9 +53,10 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if err != nil {
 		return Response{}, err
 	}
-	token, ok := kwarg["token"]
+	token, ok := kwarg["Authorization"]
 	if ok {
-		req.Header.Add("Authorization", "token "+token)
+		validToken := checkAuthorization(token)
+		req.Header.Set("Authorization", validToken)
 	}
 	contentType, ok := kwarg["Content-Type"]
 	if ok {
@@ -129,6 +130,22 @@ func getEnvProxy() *url.URL {
 		return proxyURL
 	}
 	return nil
+}
+
+func checkAuthorization(authcode string) string {
+	rawCode := strings.TrimSpace(authcode)
+	codes := strings.Split(rawCode, " ")
+	if len(codes) > 2 { // invalid Authorization header
+		return ""
+	} else if len(codes) < 2 {
+		if rawCode != "" { // only token without token key
+			return "token " + rawCode
+		}
+		// if authcode is empty, len(code) also will return 1
+		return ""
+	} else {
+		return rawCode
+	}
 }
 
 func Get(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {

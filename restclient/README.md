@@ -56,10 +56,11 @@
 	其中参数包括以下几部分：
 	timeout：建立连接和发送接收数据超时设置，默认为10s
 	protocol：默认为"http"，构建url所用
-	token：是否添加到请求头中的Authorization，如果设置，则请求头中的Authorization为"token "+token，默认为空
 	Content-Type：默认为"application/json"
-	Accept: 默认为"application/json"
-	operationname：追踪链中的操作名称，用来识别本次跨服务调用的用途，如果未设置，则默认为目标url。
+	Accept： 默认为"application/json"
+	operationname：追踪链中的操作名称，用来识别本次跨服务调用的用途，如果未设置，则默认为目标url
+	Authorization：添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串；
+				如果只有一个token字符串，则会设置为"token "+token，默认为空
 	
 	举例：
 	kwargs := map[string]string{"timeout":"10","operationname":"create_product"}
