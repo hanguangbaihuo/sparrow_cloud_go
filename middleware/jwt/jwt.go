@@ -118,8 +118,8 @@ func DefaultJwtMiddleware(jwtSecret string) *Middleware {
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			return []byte(jwtSecret), nil
 		},
-		// CredentialsOptional: true,
-		SigningMethod: SigningMethodHS256,
+		CredentialsOptional: true,
+		SigningMethod:       SigningMethodHS256,
 	})
 }
 
@@ -134,10 +134,14 @@ func (m *Middleware) Get(ctx context.Context) *jwt.Token {
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
-	if _, err := m.CheckJWT(ctx); err != nil {
+	token, err := m.CheckJWT(ctx)
+	if err != nil {
 		m.Config.ErrorHandler(ctx, err)
 		return
 	}
+	user := authenticate(token)
+	logf(ctx, "User inf is %v\n", user)
+	ctx.Values().Set(DefaultUserKey, user)
 	// If everything ok then call next.
 	ctx.Next()
 }
