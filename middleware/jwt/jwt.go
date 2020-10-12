@@ -135,14 +135,12 @@ func (m *Middleware) Get(ctx context.Context) *jwt.Token {
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
-	token, err := m.CheckJWT(ctx)
+	_, err := m.CheckJWT(ctx)
 	if err != nil {
 		m.Config.ErrorHandler(ctx, err)
 		return
 	}
-	user := authenticate(token)
-	logf(ctx, "User inf is %v\n", user)
-	ctx.Values().Set(DefaultUserKey, user)
+
 	// If everything ok then call next.
 	ctx.Next()
 }
