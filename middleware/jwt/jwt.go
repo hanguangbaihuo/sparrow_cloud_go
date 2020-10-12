@@ -134,7 +134,7 @@ func (m *Middleware) Get(ctx context.Context) *jwt.Token {
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
-	if err := m.CheckJWT(ctx); err != nil {
+	if _, err := m.CheckJWT(ctx); err != nil {
 		m.Config.ErrorHandler(ctx, err)
 		return
 	}
@@ -216,10 +216,10 @@ var (
 var jwtParser = new(jwt.Parser)
 
 // CheckJWT the main functionality, checks for token
-func (m *Middleware) CheckJWT(ctx context.Context) error {
+func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 	if !m.Config.EnableAuthOnOptions {
 		if ctx.Method() == iris.MethodOptions {
-			return nil
+			return nil, nil
 		}
 	}
 
@@ -229,7 +229,7 @@ func (m *Middleware) CheckJWT(ctx context.Context) error {
 	// If debugging is turned on, log the outcome
 	if err != nil {
 		logf(ctx, "Error extracting JWT: %v", err)
-		return err
+		return nil, err
 	}
 
 	logf(ctx, "Token extracted: %s", token)
@@ -240,12 +240,12 @@ func (m *Middleware) CheckJWT(ctx context.Context) error {
 		if m.Config.CredentialsOptional {
 			logf(ctx, "No credentials found (CredentialsOptional=true)")
 			// No error, just no token (and that is ok given that CredentialsOptional is true)
-			return nil
+			return nil, nil
 		}
 
 		// If we get here, the required token is missing
 		logf(ctx, "Error: No credentials found (CredentialsOptional=false)")
-		return ErrTokenMissing
+		return nil, ErrTokenMissing
 	}
 
 	// Now parse the token
@@ -254,7 +254,7 @@ func (m *Middleware) CheckJWT(ctx context.Context) error {
 	// Check if there was an error in parsing...
 	if err != nil {
 		logf(ctx, "Error parsing token: %v", err)
-		return err
+		return nil, err
 	}
 
 	if m.Config.SigningMethod != nil && m.Config.SigningMethod.Alg() != parsedToken.Header["alg"] {
@@ -262,21 +262,21 @@ func (m *Middleware) CheckJWT(ctx context.Context) error {
 			m.Config.SigningMethod.Alg(),
 			parsedToken.Header["alg"])
 		logf(ctx, "Error validating token algorithm: %v", err)
-		return err
+		return nil, err
 	}
 
 	// Check if the parsed token is valid...
 	if !parsedToken.Valid {
 		logf(ctx, "Token is invalid")
 		m.Config.ErrorHandler(ctx, ErrTokenInvalid)
-		return ErrTokenInvalid
+		return nil, ErrTokenInvalid
 	}
 
 	if m.Config.Expiration {
 		if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
 			if expired := claims.VerifyExpiresAt(time.Now().Unix(), true); !expired {
 				logf(ctx, "Token is expired")
-				return ErrTokenExpired
+				return nil, ErrTokenExpired
 			}
 		}
 	}
@@ -287,5 +287,5 @@ func (m *Middleware) CheckJWT(ctx context.Context) error {
 	// user property in context.
 	ctx.Values().Set(m.Config.ContextKey, parsedToken)
 
-	return nil
+	return parsedToken, nil
 }
