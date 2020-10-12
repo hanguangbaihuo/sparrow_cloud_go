@@ -3,8 +3,10 @@ module github.com/hanguangbaihuo/sparrow_cloud_go
 go 1.13
 
 require (
+	github.com/HdrHistogram/hdrhistogram-go v0.9.0 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/andybalholm/brotli v1.0.1-0.20200619015827-c3da72aa01ed // indirect
+	github.com/codahale/hdrhistogram v0.9.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
