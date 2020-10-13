@@ -42,7 +42,7 @@
 		app.Use(jwtMiddleware.Serve)
 	    ...
         // 初始化访问控制中间件配置
-        accesscontrol.InitACConf("sparrow-access-control-svc:8001", "/api/ac_i/verify/", "SparrowPromotion", flase)
+        accesscontrol.InitACConf("sparrow-access-control-svc:8001", "/api/ac_i/verify/", "SparrowPromotion", false)
 
         // /test 接口需要用户认证并拥有admin资源才可以访问
 	    app.Get("/test", accesscontrol.RequestSrc("admin"), processRequest)
