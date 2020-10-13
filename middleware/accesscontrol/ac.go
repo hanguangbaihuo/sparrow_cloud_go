@@ -1,8 +1,11 @@
 package accesscontrol
 
 import (
+	"encoding/json"
 	"errors"
 
+	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/auth"
+	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
@@ -10,67 +13,71 @@ import (
 var (
 	// ErrResrouceMissing 未提供资源
 	ErrResrouceMissing = errors.New("required resource not found")
+	// ErrAuthMissing no auth
+	ErrAuthMissing = errors.New("api need be authentication, but no user found")
+	// ErrNoPermission user don't have resource
+	ErrNoPermission = errors.New("you don't have permission to access the api")
 )
 
-// // A function called whenever an error is encountered
-type errorHandler func(context.Context, error)
+// AccessControllConf is accesscontrol middleware configuration.
+var AccessControllConf Config
 
-// Config is
-type Config struct {
-	// 资源
-	ResourceValue string
-	// The function that will be called when there's an error validating the token
-	// Default value:
-	ErrorHandler errorHandler
-}
-
-// Middleware the middleware for JSON Web tokens authentication method
-type Middleware struct {
-	Config Config
-}
-
-// OnError is the default error handler.
+// ErrorHandler is the default error handler.
 // Use it to change the behavior for each error.
-// See `Config.ErrorHandler`.
-func OnError(ctx context.Context, err error) {
+func ErrorHandler(ctx context.Context, err error) {
 	if err == nil {
 		return
 	}
 
 	ctx.StopExecution()
 	ctx.StatusCode(iris.StatusForbidden)
-	ctx.WriteString(err.Error())
+	ctx.JSON(context.Map{"message": err.Error()})
 }
 
-// New constructs a new Secure instance with supplied options.
-func New(resource string) *Middleware {
+// InitACConf constructs a new global access control configuration.
+func InitACConf(acAddr string, api string, serviceName string, skipAC bool) {
 
-	var c Config
-	c = Config{}
-	c.ResourceValue = resource
-
-	if c.ErrorHandler == nil {
-		c.ErrorHandler = OnError
-	}
-
-	return &Middleware{Config: c}
+	AccessControllConf = Config{acAddr, api, serviceName, skipAC}
 }
 
-// Serve the middleware's action
-func (m *Middleware) Serve(ctx context.Context) {
-	if err := m.CheckAccessControl(ctx); err != nil {
-		m.Config.ErrorHandler(ctx, err)
-		return
-	}
-	// If everything ok then call next.
-	ctx.Next()
-}
+// RequestSrc is access control middleware
+// auth middleware must be configured before this middleware
+func RequestSrc(resourceName string) func(context.Context) {
+	return func(ctx context.Context) {
+		// auth must be configured before run ac middleware
+		auth.IsAuthenticated(ctx)
+		// todo: check AccessControllConf had been initialized
+		if AccessControllConf.SkipAccessContorl {
+			ctx.Next()
+			return
+		}
 
-// CheckAccessControl the main functionality, checks for token
-func (m *Middleware) CheckAccessControl(ctx context.Context) error {
-	resource := m.Config.ResourceValue
-	if len(resource) == 0 {
-		return ErrResrouceMissing
+		user, ok := ctx.Values().Get(auth.DefaultUserKey).(auth.User)
+		if !ok {
+			ErrorHandler(ctx, ErrAuthMissing)
+			return
+		}
+		data := ACRequestData{user.ID, AccessControllConf.ServiceName, resourceName}
+		res, err := restclient.Get(AccessControllConf.AccessControlService, AccessControllConf.APIPath, data)
+		if err != nil {
+			ErrorHandler(ctx, err)
+			return
+		}
+		if res.Code != 200 {
+			ErrorHandler(ctx, errors.New(string(res.Body)))
+			return
+		}
+		var acResponse ACResponse
+		err = json.Unmarshal(res.Body, &acResponse)
+		if err != nil {
+			ErrorHandler(ctx, err)
+			return
+		}
+		if !acResponse.HasPerm {
+			ErrorHandler(ctx, ErrNoPermission)
+			return
+		}
+		// If everything ok then call next.
+		ctx.Next()
 	}
-	return nil
 }
