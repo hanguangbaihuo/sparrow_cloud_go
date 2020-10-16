@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-lib/metrics"
@@ -64,11 +63,12 @@ func InitGlobalTracer(serviceName string) io.Closer {
 
 func InitZipkinTracer(serviceName string) *zipkin.Tracer {
 	// set up a span reporter
-	reporter := logreporter.NewReporter(log.New(os.Stderr, "", log.LstdFlags))
+	reporter := logreporter.NewReporter(nil)
 	defer reporter.Close()
 
 	// initialize our tracer
-	GlobalTracer, err := zipkin.NewTracer(reporter)
+	var err error
+	GlobalTracer, err = zipkin.NewTracer(reporter)
 	if err != nil {
 		log.Fatalf("unable to create tracer: %+v\n", err)
 	}
