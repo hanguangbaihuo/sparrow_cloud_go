@@ -3,6 +3,8 @@ package opentracing
 import (
 	"fmt"
 	"io"
+	"log"
+	"os"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-lib/metrics"
@@ -10,8 +12,13 @@ import (
 	"github.com/uber/jaeger-client-go"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	jaegerlog "github.com/uber/jaeger-client-go/log"
-	"github.com/uber/jaeger-client-go/zipkin"
+	jaezipkin "github.com/uber/jaeger-client-go/zipkin"
+
+	zipkin "github.com/openzipkin/zipkin-go"
+	logreporter "github.com/openzipkin/zipkin-go/reporter/log"
 )
+
+var GlobalTracer *zipkin.Tracer
 
 //InitGlobalTracer is for setting Global Tracer.
 // you must do the function in main() function like follow:
@@ -35,7 +42,7 @@ func InitGlobalTracer(serviceName string) io.Closer {
 	jMetricsFactory := metrics.NullFactory
 
 	// Zipkin shares span ID between client and server spans; it must be enabled via the following option.
-	zipkinPropagator := zipkin.NewZipkinB3HTTPHeaderPropagator()
+	zipkinPropagator := jaezipkin.NewZipkinB3HTTPHeaderPropagator()
 
 	// Initialize tracer with a logger and a metrics factory
 	// Set the singleton opentracing.Tracer with the Jaeger tracer.
@@ -53,4 +60,17 @@ func InitGlobalTracer(serviceName string) io.Closer {
 	}
 
 	return closer
+}
+
+func InitZipkinTracer(serviceName string) *zipkin.Tracer {
+	// set up a span reporter
+	reporter := logreporter.NewReporter(log.New(os.Stderr, "", log.LstdFlags))
+	defer reporter.Close()
+
+	// initialize our tracer
+	GlobalTracer, err := zipkin.NewTracer(reporter)
+	if err != nil {
+		log.Fatalf("unable to create tracer: %+v\n", err)
+	}
+	return GlobalTracer
 }
