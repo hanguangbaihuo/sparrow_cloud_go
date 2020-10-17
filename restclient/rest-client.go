@@ -18,6 +18,7 @@ import (
 	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
 	zipkin "github.com/openzipkin/zipkin-go"
 	"github.com/openzipkin/zipkin-go/model"
+	"github.com/openzipkin/zipkin-go/propagation/b3"
 )
 
 // Response is the response data of external request url
@@ -99,6 +100,7 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	)
 	zipkin.TagHTTPMethod.Set(appSpan, req.Method)
 	zipkin.TagHTTPPath.Set(appSpan, req.URL.Path)
+	_ = b3.InjectHTTP(req)(appSpan.Context())
 
 	response, err := client.Do(req)
 	if err != nil {
@@ -110,7 +112,7 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if err != nil {
 		return Response{}, err
 	}
-	log.Printf("%d, %s", response.StatusCode, string(resBody))
+	// log.Printf("%d, %s", response.StatusCode, string(resBody))
 	return Response{resBody, response.StatusCode}, nil
 }
 
