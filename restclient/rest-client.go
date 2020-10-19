@@ -13,11 +13,8 @@ import (
 	"strings"
 	"time"
 
-	// opentracing "github.com/opentracing/opentracing-go"
-	// "github.com/opentracing/opentracing-go/ext"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
 	zipkin "github.com/openzipkin/zipkin-go"
-	"github.com/openzipkin/zipkin-go/model"
 	"github.com/openzipkin/zipkin-go/propagation/b3"
 )
 
@@ -81,26 +78,15 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if !ok {
 		operationName = destURL
 	}
-	// span := StartSpanFromContext(operationName)
-	// defer span.Finish()
-	// ext.SpanKindRPCClient.Set(span)
-	// ext.HTTPUrl.Set(span, destURL)
-	// ext.HTTPMethod.Set(span, strings.ToUpper(method))
-	// // Transmit the span's TraceContext as HTTP headers on our outbound request.
-	// opentracing.GlobalTracer().Inject(
-	// 	span.Context(),
-	// 	opentracing.HTTPHeaders,
-	// 	opentracing.HTTPHeadersCarrier(req.Header))
-	var parentContext model.SpanContext
-	if span := opentracing.ZipkinSpan; span != nil {
-		parentContext = span.Context()
-	}
+
 	appSpan := opentracing.GlobalTracer.StartSpan(operationName,
-		zipkin.Parent(parentContext),
+		zipkin.Parent(opentracing.ZipkinSpanContext),
 	)
+	defer appSpan.Finish()
 	zipkin.TagHTTPMethod.Set(appSpan, req.Method)
 	zipkin.TagHTTPPath.Set(appSpan, req.URL.Path)
-	_ = b3.InjectHTTP(req)(appSpan.Context())
+	_ = b3.InjectHTTP(req, b3.WithSingleAndMultiHeader())(appSpan.Context())
+	// log.Printf("send %s header is %#v\n", destURL, req.Header)
 
 	response, err := client.Do(req)
 	if err != nil {
