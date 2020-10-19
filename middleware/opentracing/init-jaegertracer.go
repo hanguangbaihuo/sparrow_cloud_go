@@ -3,7 +3,6 @@ package opentracing
 import (
 	"fmt"
 	"io"
-	"log"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-lib/metrics"
@@ -12,12 +11,7 @@ import (
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	jaegerlog "github.com/uber/jaeger-client-go/log"
 	jaezipkin "github.com/uber/jaeger-client-go/zipkin"
-
-	zipkin "github.com/openzipkin/zipkin-go"
-	logreporter "github.com/openzipkin/zipkin-go/reporter/log"
 )
-
-var GlobalTracer *zipkin.Tracer
 
 //InitGlobalTracer is for setting Global Tracer.
 // you must do the function in main() function like follow:
@@ -59,18 +53,4 @@ func InitGlobalTracer(serviceName string) io.Closer {
 	}
 
 	return closer
-}
-
-func InitZipkinTracer(serviceName string) *zipkin.Tracer {
-	// set up a span reporter
-	reporter := logreporter.NewReporter(nil)
-	defer reporter.Close()
-
-	// initialize our tracer
-	var err error
-	GlobalTracer, err = zipkin.NewTracer(reporter)
-	if err != nil {
-		log.Fatalf("unable to create tracer: %+v\n", err)
-	}
-	return GlobalTracer
 }
