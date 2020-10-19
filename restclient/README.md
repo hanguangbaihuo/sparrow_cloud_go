@@ -79,7 +79,7 @@
 #### 本地代理
 
 	直接在环境变量添加http_proxy
-	例如http_proxy="12.34.56.78:8888" go run main.go
+	例如http_proxy="http://12.34.56.78:8888" go run main.go
 		
 #### 追踪链使用方法
 
