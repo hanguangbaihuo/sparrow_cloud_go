@@ -46,18 +46,25 @@ func InitACConf(acAddr string, api string, serviceName string, skipAC bool) {
 func RequestSrc(resourceName string) func(context.Context) {
 	return func(ctx context.Context) {
 		// auth must be configured before run ac middleware
-		auth.IsAuthenticated(ctx)
-		// todo: check AccessControllConf had been initialized
-		if AccessControllConf.SkipAccessContorl {
-			ctx.Next()
+		// it means you must configure `auth.IsAuthenticated` before this middleware
+
+		// TODO: check AccessControllConf had been initialized
+		if AccessControllConf.AccessControlService == "" || AccessControllConf.APIPath == "" || AccessControllConf.ServiceName == "" {
+			ErrorHandler(ctx, errors.New("[ERROR] Please init accesscontrol middleware configuration"))
 			return
 		}
-
+		// make sure auth middleware had been configured the route
 		user, ok := ctx.Values().Get(auth.DefaultUserKey).(auth.User)
 		if !ok {
 			ErrorHandler(ctx, ErrAuthMissing)
 			return
 		}
+		// skip accesscontroll
+		if AccessControllConf.SkipAccessContorl {
+			ctx.Next()
+			return
+		}
+
 		apiPath := fmt.Sprintf(AccessControllConf.APIPath+apiParam, user.ID, AccessControllConf.ServiceName, resourceName)
 		res, err := restclient.Get(AccessControllConf.AccessControlService, apiPath, nil)
 		if err != nil {
