@@ -73,20 +73,22 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 		req.Header.Set("Accept", "application/json")
 	}
 	// todo: add opentracing
-	var operationName string
-	operationName, ok = kwarg["operationname"]
-	if !ok {
-		operationName = destURL
-	}
+	if opentracing.GlobalTracer != nil && opentracing.ZipkinSpan != nil {
+		var operationName string
+		operationName, ok = kwarg["operationname"]
+		if !ok {
+			operationName = destURL
+		}
 
-	appSpan := opentracing.GlobalTracer.StartSpan(operationName,
-		zipkin.Parent(opentracing.ZipkinSpanContext),
-	)
-	defer appSpan.Finish()
-	zipkin.TagHTTPMethod.Set(appSpan, req.Method)
-	zipkin.TagHTTPPath.Set(appSpan, req.URL.Path)
-	_ = b3.InjectHTTP(req, b3.WithSingleAndMultiHeader())(appSpan.Context())
-	// log.Printf("send %s header is %#v\n", destURL, req.Header)
+		appSpan := opentracing.GlobalTracer.StartSpan(operationName,
+			zipkin.Parent(opentracing.ZipkinSpan.Context()),
+		)
+		defer appSpan.Finish()
+		zipkin.TagHTTPMethod.Set(appSpan, req.Method)
+		zipkin.TagHTTPPath.Set(appSpan, req.URL.Path)
+		_ = b3.InjectHTTP(req, b3.WithSingleAndMultiHeader())(appSpan.Context())
+		// log.Printf("send %s header is %#v\n", destURL, req.Header)
+	}
 
 	response, err := client.Do(req)
 	if err != nil {
