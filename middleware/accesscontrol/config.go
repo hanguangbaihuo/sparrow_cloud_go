@@ -12,12 +12,7 @@ type Config struct {
 	SkipAccessContorl bool
 }
 
-// ACRequestData is request access control service data
-type ACRequestData struct {
-	UserID       string `json:"user_id"`
-	AppName      string `json:"app_name"`
-	ResourceCode string `json:"resource_code"`
-}
+var apiParam = "?user_id=%s&app_name=%s&resource_code=%s"
 
 // ACResponse is access control response when reqeust ac service
 type ACResponse struct {

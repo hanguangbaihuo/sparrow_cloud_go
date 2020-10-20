@@ -3,6 +3,7 @@ package accesscontrol
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/auth"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
@@ -57,8 +58,8 @@ func RequestSrc(resourceName string) func(context.Context) {
 			ErrorHandler(ctx, ErrAuthMissing)
 			return
 		}
-		data := ACRequestData{user.ID, AccessControllConf.ServiceName, resourceName}
-		res, err := restclient.Get(AccessControllConf.AccessControlService, AccessControllConf.APIPath, data)
+		apiPath := fmt.Sprintf(AccessControllConf.APIPath+apiParam, user.ID, AccessControllConf.ServiceName, resourceName)
+		res, err := restclient.Get(AccessControllConf.AccessControlService, apiPath, nil)
 		if err != nil {
 			ErrorHandler(ctx, err)
 			return
