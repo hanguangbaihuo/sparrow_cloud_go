@@ -15,7 +15,7 @@ var (
 	// ErrResrouceMissing 未提供资源
 	ErrResrouceMissing = errors.New("required resource not found")
 	// ErrAuthMissing no auth
-	ErrAuthMissing = errors.New("api need be authentication, but no user found")
+	ErrAuthMissing = errors.New("api needs authentication, ask developer to add auth middleware for this api")
 	// ErrNoPermission user don't have resource
 	ErrNoPermission = errors.New("you don't have permission to access the api")
 )
@@ -71,7 +71,7 @@ func RequestSrc(resourceName string) func(context.Context) {
 			ErrorHandler(ctx, err)
 			return
 		}
-		if res.Code != 200 {
+		if res.Code != 200 && res.Code != 403 {
 			ErrorHandler(ctx, errors.New(string(res.Body)))
 			return
 		}
