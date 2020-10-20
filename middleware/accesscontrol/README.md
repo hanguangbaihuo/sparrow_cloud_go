@@ -9,13 +9,14 @@
 #### 配置前提
 
 	需要先配置JWT中间件，详见github.com/hanguangbaihuo/sparrow_cloud_go/middleware/jwt
+    接口添加auth认证，详见github.com/hanguangbaihuo/sparrow_cloud_go/middleware/auth
 
 #### 使用前注意
 
     1. 必需提前配置jwt中间件
     2. 必需初始化访问控制中间件的配置
-    3. 访问控制内部包含了auth中间件认证，无需在接口中再次添加。如果需要访问控制，直接添加该中间件即可
-    4. 如果设置跳过访问控制，添加了访问控制的中间件仍然需要auth认证
+    3. 如果接口需要访问控制，则接口前必需先添加auth认证中间件，否则接口不通过
+    4. 如果配置跳过访问控制，仍然需要添加auth认证，因为之后变为不跳过访问控制后，必需用到user_id，该数据只能从auth中间件获得
 
 #### 初始化访问控制中间件配置
 
@@ -31,7 +32,8 @@
 	import (
 		...
 		"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/jwt"
-		"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/accesscontrol"
+        "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/auth"
+		ac "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/accesscontrol"
 	)
 	
 	func main() {
@@ -42,9 +44,9 @@
 		app.Use(jwtMiddleware.Serve)
 	    ...
         // 初始化访问控制中间件配置
-        accesscontrol.InitACConf("sparrow-access-control-svc:8001", "/api/ac_i/verify/", "SparrowPromotion", false)
+        ac.InitACConf("sparrow-access-control-svc:8001", "/api/ac_i/verify/", "SparrowPromotion", false)
 
         // /test 接口需要用户认证并拥有admin资源才可以访问
-	    app.Get("/test", accesscontrol.RequestSrc("admin"), processRequest)
+	    app.Get("/test", auth.IsAuthenticated, ac.RequestSrc("admin"), processRequest)
 	    app.Listen("8081")
     }
