@@ -4,7 +4,19 @@
 
     go get github.com/hanguangbaihuo/sparrow_cloud_go
 
-### iris框架中zipkin追踪链使用方法
+#### iris框架中使用方法
+
+    import "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
+
+    func main() {
+	    // 初始化iris app
+	    app := iris.New()
+	    // 使用opentracing中间件，从header中b3 headers，用于之后注入restclient请求头
+	    app.Use(opentracing.Serve)
+        ...
+    }
+
+### iris框架中zipkin追踪链使用方法【不再使用】
 
 	import "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
 
@@ -17,23 +29,6 @@
 	    app := iris.New()
 	    // 使用opentracing中间件，从header中提取父span，并存储至全局
 	    app.Use(opentracing.ZipkinServe("YourServiceName"))
-        ...
-    }
-
-
-#### iris框架中使用方法【v0.4版本后废弃】
-
-    import "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
-
-    func main() {
-	    // 追踪链配置：初始化Jaeger为GlobalTracer
-        // 初始化失败则程序直接结束
-	    closer := opentracing.InitGlobalTracer("YourServiceName")
-	    defer closer.Close()
-	    // 初始化iris app
-	    app := iris.New()
-	    // 使用opentracing中间件，从header中提取父span，并存储至中间件
-	    app.Use(opentracing.Serve("YourServiceName"))
         ...
     }
 
