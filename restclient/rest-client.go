@@ -100,7 +100,7 @@ func parseTimeout(kwargs ...map[string]string) (map[string]string, int64) {
 		kwarg = kwargs[0]
 	}
 	var timeout int64
-	timeout = 10
+	timeout = 10000
 	timeoutStr, ok := kwarg["timeout"]
 	if ok {
 		timeout, _ = strconv.ParseInt(timeoutStr, 10, 64)
