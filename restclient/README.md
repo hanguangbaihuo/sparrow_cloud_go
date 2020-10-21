@@ -54,16 +54,15 @@
 	
 	kwargs类型是map[string]string
 	其中参数包括以下几部分：
-	timeout：建立连接和发送接收数据超时设置，默认为10s
+	timeout：建立连接和发送接收数据超时设置，不填写默认为10s，时间单位为毫秒
 	protocol：默认为"http"，构建url所用
 	Content-Type：默认为"application/json"
 	Accept： 默认为"application/json"
-	operationname：追踪链中的操作名称，用来识别本次跨服务调用的用途，如果未设置，则默认为目标url
 	Authorization：添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串；
 				如果只有一个token字符串，则会设置为"token "+token，默认为空
 	
 	举例：
-	kwargs := map[string]string{"timeout":"10","operationname":"create_product"}
+	kwargs := map[string]string{"timeout":"10000"}
 	res, err := restclient.Get(serviceAddr, apiPath, nil, kwargs)
 
 #### 方法返回Response
@@ -81,30 +80,6 @@
 	直接在环境变量添加http_proxy
 	例如http_proxy="http://12.34.56.78:8888" go run main.go
 		
-#### 追踪链使用方法
+#### 配合链路追踪
 
-	// 先在iris的应用中添加追踪链中间件,见github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing/
-	
-    import "github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
-    func main() {
-	    // 追踪链配置：初始化Jaeger为GlobalTracer
-	    closer := opentracing.InitGlobalTracer("YourServiceName")
-	    defer closer.Close()
-	    // 初始化iris app
-	    app := iris.New()
-	    // 使用opentracing中间件，从header中提取父span，并存储至中间件
-	    app.Use(opentracing.Serve("YourServiceName"))
-	    ...
-	    app.Get("/test", processRequest)
-	    app.Listen()
-    }
-    
-    func processRequest(ctx iris.Context) {
-	    serviceAddr := "sparrow-product-svc:8001"
-	    apiPath := "/api/sparrow_products/products/show/"
-	    res, err := restclient.Get(serviceAddr, apiPath, nil)
-	    if err != nil {
-	    // do something
-	    }
-	    fmt.Println(res.Body, res.Code)
-    }
+	需先在iris应用中添加追踪链中间件,见github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing/

@@ -14,8 +14,6 @@ import (
 	"time"
 
 	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/opentracing"
-	zipkin "github.com/openzipkin/zipkin-go"
-	"github.com/openzipkin/zipkin-go/propagation/b3"
 )
 
 // Response is the response data of external request url
@@ -35,11 +33,11 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	client := &http.Client{
 		Transport: &http.Transport{
 			Dial: func(netw, addr string) (net.Conn, error) {
-				c, err := net.DialTimeout(netw, addr, time.Duration(timeout)*time.Second) //设置建立连接超时
+				c, err := net.DialTimeout(netw, addr, time.Duration(timeout)*time.Millisecond) //设置建立连接超时
 				if err != nil {
 					return nil, err
 				}
-				c.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Second)) //设置发送接收数据超时
+				c.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond)) //设置发送接收数据超时
 				return c, nil
 			},
 			Proxy: http.ProxyURL(proxyURL),
@@ -72,21 +70,13 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	} else {
 		req.Header.Set("Accept", "application/json")
 	}
-	// todo: add opentracing
-	if opentracing.GlobalTracer != nil && opentracing.ZipkinSpan != nil {
-		var operationName string
-		operationName, ok = kwarg["operationname"]
-		if !ok {
-			operationName = destURL
+	// add opentracing b3 headers
+	if opentracing.OpentracingInf != nil {
+		for key, value := range opentracing.OpentracingInf {
+			if len(value) > 0 {
+				req.Header.Set(key, value[0])
+			}
 		}
-
-		appSpan := opentracing.GlobalTracer.StartSpan(operationName,
-			zipkin.Parent(opentracing.ZipkinSpan.Context()),
-		)
-		defer appSpan.Finish()
-		zipkin.TagHTTPMethod.Set(appSpan, req.Method)
-		zipkin.TagHTTPPath.Set(appSpan, req.URL.Path)
-		_ = b3.InjectHTTP(req, b3.WithSingleAndMultiHeader())(appSpan.Context())
 		// log.Printf("send %s header is %#v\n", destURL, req.Header)
 	}
 
@@ -110,7 +100,7 @@ func parseTimeout(kwargs ...map[string]string) (map[string]string, int64) {
 		kwarg = kwargs[0]
 	}
 	var timeout int64
-	timeout = 10
+	timeout = 10000
 	timeoutStr, ok := kwarg["timeout"]
 	if ok {
 		timeout, _ = strconv.ParseInt(timeoutStr, 10, 64)
