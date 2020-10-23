@@ -71,14 +71,15 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 		req.Header.Set("Accept", "application/json")
 	}
 	// add opentracing b3 headers
-	if opentracing.OpentracingInf != nil {
-		for key, value := range opentracing.OpentracingInf {
+	b3headers, ok := opentracing.OpentracingInf.GetHeaders().(map[string][]string)
+	if ok {
+		for key, value := range b3headers {
 			if len(value) > 0 {
 				req.Header.Set(key, value[0])
 			}
 		}
-		// log.Printf("send %s header is %#v\n", destURL, req.Header)
 	}
+	// log.Printf("send %s header is %#v\n", destURL, req.Header)
 
 	response, err := client.Do(req)
 	if err != nil {
