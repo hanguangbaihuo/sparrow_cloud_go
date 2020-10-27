@@ -237,6 +237,8 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		return nil, err
 	}
 
+	ctx.Values().Set(RawTokenKey, token)
+
 	logf(ctx, "Token extracted: %s", token)
 
 	// If the token is empty...
