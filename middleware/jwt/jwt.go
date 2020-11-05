@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/hanguangbaihuo/sparrow_cloud_go/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
@@ -125,10 +126,6 @@ func DefaultJwtMiddleware(jwtSecret string) *Middleware {
 	})
 }
 
-func logf(ctx iris.Context, format string, args ...interface{}) {
-	ctx.Application().Logger().Debugf(format, args...)
-}
-
 // Get returns the user (&token) information for this client/request
 func (m *Middleware) Get(ctx context.Context) *jwt.Token {
 	return ctx.Values().Get(m.Config.ContextKey).(*jwt.Token)
@@ -234,23 +231,23 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 
 	// If debugging is turned on, log the outcome
 	if err != nil {
-		logf(ctx, "Error extracting JWT: %v", err)
+		utils.LogDebugf(ctx, "Error extracting JWT: %v", err)
 		return nil, err
 	}
 
-	logf(ctx, "Token extracted: %s", token)
+	utils.LogDebugf(ctx, "Token extracted: %s", token)
 
 	// If the token is empty...
 	if token == "" {
 		// Check if it was required
 		if m.Config.CredentialsOptional {
-			logf(ctx, "No credentials found (CredentialsOptional=true)")
+			utils.LogDebugf(ctx, "No credentials found (CredentialsOptional=true)")
 			// No error, just no token (and that is ok given that CredentialsOptional is true)
 			return nil, nil
 		}
 
 		// If we get here, the required token is missing
-		logf(ctx, "Error: No credentials found (CredentialsOptional=false)")
+		utils.LogDebugf(ctx, "Error: No credentials found (CredentialsOptional=false)")
 		return nil, ErrTokenMissing
 	}
 	// Now parse the token
@@ -258,7 +255,7 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 
 	// Check if there was an error in parsing...
 	if err != nil {
-		logf(ctx, "Error parsing token: %v", err)
+		utils.LogDebugf(ctx, "Error parsing token: %v", err)
 		return nil, err
 	}
 
@@ -266,13 +263,13 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		err := fmt.Errorf("Expected %s signing method but token specified %s",
 			m.Config.SigningMethod.Alg(),
 			parsedToken.Header["alg"])
-		logf(ctx, "Error validating token algorithm: %v", err)
+		utils.LogDebugf(ctx, "Error validating token algorithm: %v", err)
 		return nil, err
 	}
 
 	// Check if the parsed token is valid...
 	if !parsedToken.Valid {
-		logf(ctx, "Token is invalid")
+		utils.LogDebugf(ctx, "Token is invalid")
 		m.Config.ErrorHandler(ctx, ErrTokenInvalid)
 		return nil, ErrTokenInvalid
 	}
@@ -280,13 +277,13 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 	if m.Config.Expiration {
 		if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
 			if expired := claims.VerifyExpiresAt(time.Now().Unix(), true); !expired {
-				logf(ctx, "Token is expired")
+				utils.LogDebugf(ctx, "Token is expired")
 				return nil, ErrTokenExpired
 			}
 		}
 	}
 
-	logf(ctx, "JWT: %v", parsedToken)
+	utils.LogDebugf(ctx, "JWT: %v", parsedToken)
 
 	// only when toke is not empty and valid, we will storage it
 	ctx.Values().Set(RawTokenKey, token)
