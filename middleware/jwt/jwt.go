@@ -237,8 +237,6 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		return nil, err
 	}
 
-	ctx.Values().Set(RawTokenKey, token)
-
 	logf(ctx, "Token extracted: %s", token)
 
 	// If the token is empty...
@@ -254,10 +252,9 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		logf(ctx, "Error: No credentials found (CredentialsOptional=false)")
 		return nil, ErrTokenMissing
 	}
-
 	// Now parse the token
-
 	parsedToken, err := jwtParser.Parse(token, m.Config.ValidationKeyGetter)
+
 	// Check if there was an error in parsing...
 	if err != nil {
 		logf(ctx, "Error parsing token: %v", err)
@@ -289,6 +286,9 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 	}
 
 	logf(ctx, "JWT: %v", parsedToken)
+
+	// only when toke is not empty and valid, we will storage it
+	ctx.Values().Set(RawTokenKey, token)
 
 	// If we get here, everything worked and we can set the
 	// user property in context.
