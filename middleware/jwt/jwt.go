@@ -42,6 +42,7 @@ var (
 	SigningMethodHS512 = jwt.SigningMethodHS512
 )
 
+// RS256 and company.
 var (
 	SigningMethodRS256 = jwt.SigningMethodRS256
 	SigningMethodRS384 = jwt.SigningMethodRS384
