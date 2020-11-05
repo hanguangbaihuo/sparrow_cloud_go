@@ -7,6 +7,7 @@ import (
 
 	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/auth"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
+	"github.com/hanguangbaihuo/sparrow_cloud_go/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 )
@@ -53,7 +54,7 @@ func RequestSrc(resourceName string) func(context.Context) {
 			ErrorHandler(ctx, errors.New("[ERROR] Please init accesscontrol middleware configuration"))
 			return
 		}
-		// make sure auth middleware had been configured the route
+		// make sure auth middleware had been configured for the route
 		user, ok := ctx.Values().Get(auth.DefaultUserKey).(auth.User)
 		if !ok {
 			ErrorHandler(ctx, ErrAuthMissing)
@@ -61,23 +62,27 @@ func RequestSrc(resourceName string) func(context.Context) {
 		}
 		// skip accesscontroll
 		if AccessControllConf.SkipAccessContorl {
+			utils.LogDebugf(ctx, "[AC] Skip the access control\n")
 			ctx.Next()
 			return
 		}
 
 		apiPath := fmt.Sprintf(AccessControllConf.APIPath+apiParam, user.ID, AccessControllConf.ServiceName, resourceName)
+		utils.LogDebugf(ctx, "[AC] access control service: %v, api path is %v\n", AccessControllConf.AccessControlService, apiPath)
 		res, err := restclient.Get(AccessControllConf.AccessControlService, apiPath, nil)
 		if err != nil {
 			ErrorHandler(ctx, err)
 			return
 		}
 		if res.Code != 200 && res.Code != 403 {
+			utils.LogDebugf(ctx, "[AC] response code %v, body %v\n", res.Code, string(res.Body))
 			ErrorHandler(ctx, errors.New(string(res.Body)))
 			return
 		}
 		var acResponse ACResponse
 		err = json.Unmarshal(res.Body, &acResponse)
 		if err != nil {
+			utils.LogInfof(ctx, "[AC] unmarsha response error: %v\n", err)
 			ErrorHandler(ctx, err)
 			return
 		}
