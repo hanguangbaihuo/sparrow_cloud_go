@@ -11,26 +11,10 @@
 ### Iris middleware ###
 
 * JWT Middleware : 解析 JWT Token
+* AUTH Middleware: 认证用户ID
+* AccessControl Middleware: 访问控制
+* Opentracing Middleware: 追踪链中间件，配合restclient使用，追踪链注入由envoy完成
 
-#### JWTMiddleware ####
+#### restclient ####
 
-> 描述：Token 验证和解析
-> 配置 JWTMiddleware 中间件需要的参数
-
-```
-注册中间件
-app := iris.New()
-
-jwt_middleware := jwt.New(jwt.Config{
-    ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-        return []byte("jwt_secret"), nil
-    },
-    SigningMethod: jwt.SigningMethodHS256,
-})
-// 全局添加中间件
-app.Use(jwt_middleware.Serve)
-```
-
-
-
-
+> 描述：跨服务间调用
