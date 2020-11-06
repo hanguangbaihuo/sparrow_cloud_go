@@ -36,6 +36,7 @@ func ErrorHandler(ctx context.Context, err error) {
 func IsAuthenticated(ctx context.Context) {
 	token := ctx.Values().Get(myjwt.DefaultContextKey)
 	if token == nil {
+		utils.LogDebugf(ctx, "[AUTH] no token or jwt middleware configure error\n")
 		ErrorHandler(ctx, ErrTokenMissing)
 		return
 	}
@@ -45,7 +46,7 @@ func IsAuthenticated(ctx context.Context) {
 		return
 	}
 	ctx.Values().Set(DefaultUserKey, user)
-	utils.LogDebugf(ctx, "User inf is %v\n", user)
+	utils.LogDebugf(ctx, "[AUTH] User inf is %v\n", user)
 	ctx.Next()
 }
 
@@ -55,7 +56,7 @@ func authenticate(ctx context.Context, token *jwt.Token) (User, error) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		utils.LogDebugf(ctx, "token is not jwt MapClaim type: %v", token.Claims)
+		utils.LogDebugf(ctx, "[AUTH] token is not jwt MapClaim type: %v\n", token.Claims)
 		return User{}, ErrTokenMissing
 	}
 	var id string
@@ -64,7 +65,7 @@ func authenticate(ctx context.Context, token *jwt.Token) (User, error) {
 		id = claims["id"].(string)
 	}
 	if id == "" {
-		utils.LogInfof(ctx, "uid not found in Jwt Claim: %v\n", claims)
+		utils.LogInfof(ctx, "[AUTH] uid not found in Jwt Claim: %v\n", claims)
 		return User{}, ErrUserIDMissing
 	}
 	return User{
