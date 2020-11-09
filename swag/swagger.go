@@ -41,21 +41,19 @@ func Build(config Config, svcConfig ServiceConfig) error {
 
 	// TODO: send data to swagger api
 	sd := SwaggerData{
-		Swagger:     swagger.Swagger,
-		Info:        swagger.Info,
-		Paths:       swagger.Paths,
-		ServiceName: svcConfig.ServiceName,
+		Swagger:      swagger.Swagger,
+		Info:         swagger.Info,
+		Paths:        swagger.Paths,
+		Contributors: []string{},
+		ServiceName:  svcConfig.ServiceName,
 	}
 
-	b, err := json.MarshalIndent(sd, "", "    ")
-	if err != nil {
-		return err
-	}
-	_, err = restclient.Post(svcConfig.ServiceName, svcConfig.APIPath, b)
+	res, err := restclient.Post(svcConfig.SwaggerService, svcConfig.APIPath, sd)
 	if err != nil {
 		log.Printf("request remote service occur error: %v\n", err)
 		return err
 	}
+	log.Printf("Swagger Service return code: %v, body: %v\n", res.Code, string(res.Body))
 
 	// according to user setting, log out to swagger json file
 	if !config.OutputFlag {
@@ -65,6 +63,11 @@ func Build(config Config, svcConfig ServiceConfig) error {
 
 	if err := os.MkdirAll(config.OutputDir, os.ModePerm); err != nil {
 		log.Printf("successfully register schema to remote server, but failed to create local file %v\n", err)
+		return err
+	}
+
+	b, err := json.MarshalIndent(sd, "", "    ")
+	if err != nil {
 		return err
 	}
 
