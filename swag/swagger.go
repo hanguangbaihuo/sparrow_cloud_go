@@ -7,10 +7,20 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-openapi/spec"
+	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
 	"github.com/swaggo/swag"
 )
 
-func Build(config Config) error {
+type SwaggerData struct {
+	Swagger      string      `json:"swagger,omitempty"`
+	Info         *spec.Info  `json:"info,omitempty"`
+	Paths        *spec.Paths `json:"paths"`
+	Contributors []string    `json:"contributors"`
+	ServiceName  string      `json:"service_name"`
+}
+
+func Build(config Config, svcConfig ServiceConfig) error {
 	if _, err := os.Stat(config.SearchDir); os.IsNotExist(err) {
 		return fmt.Errorf("dir: %s is not exist", config.SearchDir)
 	}
@@ -29,13 +39,25 @@ func Build(config Config) error {
 	}
 	swagger := p.GetSwagger()
 
-	b, err := json.MarshalIndent(swagger, "", "    ")
+	// TODO: send data to swagger api
+	sd := SwaggerData{
+		Swagger:     swagger.Swagger,
+		Info:        swagger.Info,
+		Paths:       swagger.Paths,
+		ServiceName: svcConfig.ServiceName,
+	}
+
+	b, err := json.MarshalIndent(sd, "", "    ")
 	if err != nil {
 		return err
 	}
-	// TODO: send data to swagger api
+	_, err = restclient.Post(svcConfig.ServiceName, svcConfig.APIPath, b)
+	if err != nil {
+		log.Printf("request remote service occur error: %v\n", err)
+		return err
+	}
 
-	// according to user setting, log out to json file
+	// according to user setting, log out to swagger json file
 	if !config.OutputFlag {
 		return nil
 	}
@@ -52,7 +74,7 @@ func Build(config Config) error {
 		log.Printf("register schema successful, write local file failed %v\n", err)
 		return err
 	}
-	log.Printf("create swagger.json at %+v", jsonFileName)
+	log.Printf("create swagger.json at %+v\n", jsonFileName)
 	return nil
 }
 
