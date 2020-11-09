@@ -78,3 +78,12 @@ func DefaultConfig() Config {
 		ParseDepth:          parseDepth,
 	}
 }
+
+type ServiceConfig struct {
+	// SwaggerService represents remote swagger service
+	SwaggerService string
+	// APIPath
+	APIPath string
+	// ServiceName is the service name, used for app_name
+	ServiceName string
+}
