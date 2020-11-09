@@ -55,11 +55,6 @@ func Build(config Config, svcConfig ServiceConfig) error {
 	}
 	log.Printf("Swagger Service return code: %v, body: %v\n", res.Code, string(res.Body))
 
-	b, err := json.MarshalIndent(sd, "", "    ")
-	if err != nil {
-		return err
-	}
-
 	// according to user setting, log out to swagger json file
 	if !config.OutputFlag {
 		return nil
@@ -68,6 +63,11 @@ func Build(config Config, svcConfig ServiceConfig) error {
 
 	if err := os.MkdirAll(config.OutputDir, os.ModePerm); err != nil {
 		log.Printf("successfully register schema to remote server, but failed to create local file %v\n", err)
+		return err
+	}
+
+	b, err := json.MarshalIndent(sd, "", "    ")
+	if err != nil {
 		return err
 	}
 
