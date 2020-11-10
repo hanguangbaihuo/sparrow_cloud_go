@@ -12,6 +12,33 @@
 	2. api注释说明 https://github.com/swaggo/swag#general-api-info
 	3. 直接拷贝命令代码至根目录下，运行即可。注意修改配置为你的服务名称
 
+#### 文档书写示例
+
+    // Process Request func godoc
+    // @Summary 接口用途，用来处理外部请求并返回
+    // @Description ### 接口格式请求格式说明   
+    // @Description     参数：
+    // @Description         {
+    // @Description             "name": "hpa_name", //hpa的名字
+    // @Description             "min": 1,
+    // @Description             "max": 3
+    // @Description         }
+    // @Description     返回：200
+    // @Description         {
+    // @Description             "message":"ok"
+    // @Description         }
+    // @Accept  json
+    // @Produce  json
+    // @Param name body string true "hpa name"
+    // @Success 200 string {"message":"ok"}
+    // @Failure 400 string {"message":"error"}
+    // @Failure 404 string {"message":"error"}
+    // @Failure 500 string {"message":"error"}
+    // @Router /api/sparrow_test/justtest/create [post]
+    func processReuqest (iris.Context) {
+        //do something
+    }
+
 #### 命令文件
 
 	// cmd.go
