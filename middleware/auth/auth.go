@@ -17,6 +17,9 @@ var (
 
 	// ErrUserIDMissing is the error value when no user id found in jwt token
 	ErrUserIDMissing = errors.New("authorization token missing user id")
+
+	// ErrTokenType when parse jwt token, its type is not available type
+	ErrTokenType = errors.New("token type error")
 )
 
 // ErrorHandler is the default error handler.
@@ -35,12 +38,8 @@ func ErrorHandler(ctx context.Context, err error) {
 // only when your api need be authenticated, you should configure this middleware, otherwise do not configure it
 func IsAuthenticated(ctx context.Context) {
 	token := ctx.Values().Get(myjwt.DefaultContextKey)
-	if token == nil {
-		utils.LogDebugf(ctx, "[AUTH] no token or jwt middleware configure error\n")
-		ErrorHandler(ctx, ErrTokenMissing)
-		return
-	}
-	user, err := authenticate(ctx, token.(*jwt.Token))
+
+	user, err := authenticate(ctx, token)
 	if err != nil {
 		ErrorHandler(ctx, err)
 		return
@@ -50,14 +49,29 @@ func IsAuthenticated(ctx context.Context) {
 	ctx.Next()
 }
 
-func authenticate(ctx context.Context, token *jwt.Token) (User, error) {
+// CheckUser is a function to check token contains user id,
+// return a User struct
+func CheckUser(ctx context.Context) User {
+	token := ctx.Values().Get(myjwt.DefaultContextKey)
+
+	user, _ := authenticate(ctx, token)
+	return user
+}
+
+func authenticate(ctx context.Context, token interface{}) (User, error) {
 	if token == nil {
+		utils.LogDebugf(ctx, "[AUTH] no token or jwt middleware configure error\n")
 		return User{}, ErrTokenMissing
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
+	jtoken, ok := token.(*jwt.Token)
 	if !ok {
-		utils.LogDebugf(ctx, "[AUTH] token is not jwt MapClaim type: %v\n", token.Claims)
-		return User{}, ErrTokenMissing
+		utils.LogDebugf(ctx, "[AUTH] token is not jwt Token type: %v\n", token)
+		return User{}, ErrTokenType
+	}
+	claims, ok := jtoken.Claims.(jwt.MapClaims)
+	if !ok {
+		utils.LogDebugf(ctx, "[AUTH] token is not jwt MapClaim type: %v\n", jtoken.Claims)
+		return User{}, ErrTokenType
 	}
 	var id string
 	id, ok = claims["uid"].(string)
