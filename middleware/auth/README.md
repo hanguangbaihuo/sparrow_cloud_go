@@ -38,5 +38,5 @@
 
 #### 无需auth中间件获取User
 
-	user := CheckUser(ctx)
+	user := auth.CheckUser(ctx)
 	fmt.Println(user.ID, user.IsAuthenticated)
