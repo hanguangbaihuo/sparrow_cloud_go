@@ -49,6 +49,15 @@ func IsAuthenticated(ctx context.Context) {
 	ctx.Next()
 }
 
+// CheckUser is a function to check token contains user id,
+// return a User struct
+func CheckUser(ctx context.Context) User {
+	token := ctx.Values().Get(myjwt.DefaultContextKey)
+
+	user, _ := authenticate(ctx, token)
+	return user
+}
+
 func authenticate(ctx context.Context, token interface{}) (User, error) {
 	if token == nil {
 		utils.LogDebugf(ctx, "[AUTH] no token or jwt middleware configure error\n")
