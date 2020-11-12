@@ -35,3 +35,8 @@
     user := ctx.Values().Get(auth.DefaultUserKey).(auth.User)
     // user := ctx.Values().Get("user")
     fmt.Println(user.ID, user.IsAuthenticated)
+
+#### 无需auth中间件获取User
+
+	user := CheckUser(ctx)
+	fmt.Println(user.ID, user.IsAuthenticated)
