@@ -53,7 +53,7 @@
 		cfg := swag.DefaultConfig()
 		// cfg.OutputFlag = true //如果设置为true，则会在文件根目录下生成./docs/swagger.json文档
 		swagcfg := swag.ServiceConfig{
-			"sparrow-schema-svc:8001", //此处是swagger服务的名称
+			"sparrow-schema-svc.frontend:8001", //此处是swagger服务的名称
 			"/api/schema_i/register/", //此处为swagger服务的api接口
 			"YourServiceName", //该名称需要设置为你的服务的名称
 		}
