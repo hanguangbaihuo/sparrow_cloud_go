@@ -4,6 +4,12 @@
 
     go get github.com/hanguangbaihuo/sparrow_cloud_go/
 
+### 注意
+
+    必须配置环境变量:
+    SC_MANAGE_SVC
+    SC_MANAGE_API
+
 #### 获取app_token
 
     import (
