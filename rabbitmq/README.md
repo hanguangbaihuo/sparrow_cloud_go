@@ -18,6 +18,7 @@
 
     func main() {
         // 1.发送异步消息
+        // message code是test
         // 位置参数为"test",关键字参数为hi="hello world"
         res, err := rabbitmq.SendTask("test", []interface{}{"test"}, map[string]interface{}{"hi": "hello world"})
         if err != nil {
@@ -29,6 +30,7 @@
         }
 
         // 2. 发送异步延时消息
+        // message code是test
         // 位置参数为空，关键字参数为info="this is a delay 测试 message"
         // 延时时间是3600s
         res, err = rabbitmq.SendTask("test", []interface{}{}, map[string]interface{}{"info": "this is a delay 测试 message"}, 3600)
@@ -50,7 +52,7 @@
     msgCode: message_code,消息码
     args: 位置参数，发送的异步消息数据
     kwargs: 关键字参数，发送的异步消息数据
-    delayTime: 可选参数，延迟时间，
+    delayTime: 可选参数，延迟时间，当发送延时消息时，需要传递该参数
 
     返回：
     第一个返回数据类型是接口类型，如果需要返回的task_id，需要先进行断言。
