@@ -17,7 +17,19 @@
 
 ### restclient ###
 
-    跨服务间请求调用
+    跨服务间请求调用[readme](./restclient/README.md)
+
+### authorization ###
+
+    获取访问认证token
+
+### rabbitmq ###
+
+    发送异步消息和异步延时消息
+
+### robot ###
+
+    发送通知消息（钉钉和微信）
 
 ### swag ###
 
