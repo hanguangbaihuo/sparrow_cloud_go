@@ -17,13 +17,13 @@ type ParentOptions struct {
 type InputData struct {
 	Code         string                 `json:"code"`
 	Args         []interface{}          `json:"args"`
-	kwargs       map[string]interface{} `json:"kwargs"`
+	Kwargs       map[string]interface{} `json:"kwargs"`
 	DeliveryMode string                 `json:"delivery_mode"`
 	DelayTime    int                    `json:"delay_time"`
 	ParentOpt    ParentOptions          `json:"parent_options"`
 }
 
-func SendTask(msgCode string, args []interface{}, kwargs map[string]interface{}, delayTime ...int) (string, error) {
+func SendTask(msgCode string, args []interface{}, kwargs map[string]interface{}, delayTime ...int) (interface{}, error) {
 	taskProxySvc := os.Getenv("SC_TASK_PROXY")
 	taskProxyApi := os.Getenv("SC_TASK_PROXY_API")
 	var parentOpt ParentOptions
@@ -41,7 +41,7 @@ func SendTask(msgCode string, args []interface{}, kwargs map[string]interface{},
 	data := InputData{
 		Code:         msgCode,
 		Args:         args,
-		kwargs:       kwargs,
+		Kwargs:       kwargs,
 		DeliveryMode: "persistent",
 		DelayTime:    dt,
 		ParentOpt:    parentOpt,
@@ -56,7 +56,7 @@ func SendTask(msgCode string, args []interface{}, kwargs map[string]interface{},
 		return "", errors.New(string(res.Body))
 	}
 	taskData := struct {
-		TaskID string `json:"task_id"`
+		TaskID interface{} `json:"task_id"`
 	}{}
 	err = json.Unmarshal(res.Body, &taskData)
 	if err != nil {
