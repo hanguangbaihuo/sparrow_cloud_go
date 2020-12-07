@@ -19,8 +19,8 @@
     func main() {
         // 1.发送异步消息
         // message code是test
-        // 位置参数为"test",关键字参数为hi="hello world"
-        res, err := rabbitmq.SendTask("test", []interface{}{"test"}, map[string]interface{}{"hi": "hello world"})
+        // 位置参数为"hola",关键字参数为hi="hello world"
+        res, err := rabbitmq.SendTask("test", []interface{}{"hola"}, map[string]interface{}{"hi": "hello world"})
         if err != nil {
             // handle error
         }
