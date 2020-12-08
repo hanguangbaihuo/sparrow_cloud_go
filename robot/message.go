@@ -19,7 +19,7 @@ func SendMsg(msg string, codeList []string, channel string, msgType string, toke
 	}{
 		msg, codeList, channel, msgType,
 	}
-	kwargs := map[string]string{"Authorization": "token " + token}
+	kwargs := map[string]interface{}{"Authorization": "token " + token}
 	res, err := restclient.Post(robotMsgSvc, robotMsgApi, data, kwargs)
 	if err != nil {
 		log.Printf("send robot message occur error: %s\n", err)
