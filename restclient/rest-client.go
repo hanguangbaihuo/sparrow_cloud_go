@@ -22,9 +22,9 @@ type Response struct {
 	Code int
 }
 
-func request(method string, serviceAddr string, apiPath string, timeout int64, payload interface{}, kwarg map[string]string) (Response, error) {
+func request(method string, serviceAddr string, apiPath string, timeout int64, payload interface{}, kwarg map[string]interface{}) (Response, error) {
 	var protocol string
-	protocol, ok := kwarg["protocol"]
+	protocol, ok := kwarg["protocol"].(string)
 	if !ok {
 		protocol = "http"
 	}
@@ -53,22 +53,30 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if err != nil {
 		return Response{}, err
 	}
-	token, ok := kwarg["Authorization"]
+	headers, ok := kwarg["headers"].(http.Header)
+	if ok {
+		for key, values := range headers {
+			for _, value := range values {
+				req.Header.Add(key, value)
+			}
+		}
+	}
+	token, ok := kwarg["Authorization"].(string)
 	if ok {
 		validToken := checkAuthorization(token)
 		req.Header.Set("Authorization", validToken)
 	}
-	contentType, ok := kwarg["Content-Type"]
+	contentType, ok := kwarg["Content-Type"].(string)
 	if ok {
-		req.Header.Set("Content-Type", contentType)
+		req.Header.Add("Content-Type", contentType)
 	} else {
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Add("Content-Type", "application/json")
 	}
-	accept, ok := kwarg["Accept"]
+	accept, ok := kwarg["Accept"].(string)
 	if ok {
-		req.Header.Set("Accept", accept)
+		req.Header.Add("Accept", accept)
 	} else {
-		req.Header.Set("Accept", "application/json")
+		req.Header.Add("Accept", "application/json")
 	}
 	// add opentracing b3 headers
 	b3headers, ok := opentracing.OpentracingInf.GetHeaders().(map[string][]string)
@@ -95,16 +103,26 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	return Response{resBody, response.StatusCode}, nil
 }
 
-func parseTimeout(kwargs ...map[string]string) (map[string]string, int64) {
-	kwarg := make(map[string]string)
+func parseTimeout(kwargs ...map[string]interface{}) (map[string]interface{}, int64) {
+	kwarg := make(map[string]interface{})
 	if len(kwargs) > 0 {
 		kwarg = kwargs[0]
 	}
 	var timeout int64
 	timeout = 10000
-	timeoutStr, ok := kwarg["timeout"]
-	if ok {
-		timeout, _ = strconv.ParseInt(timeoutStr, 10, 64)
+
+	switch timeoutVar := kwarg["timeout"].(type) {
+	case int:
+		timeout = int64(timeoutVar)
+	case int64:
+		timeout = timeoutVar
+	case string:
+		var err error
+		timeout, err = strconv.ParseInt(timeoutVar, 10, 64)
+		if err != nil {
+			log.Printf("parse timeout error in restclient: %s\n", err)
+			timeout = 10000
+		}
 	}
 	return kwarg, timeout
 }
@@ -116,6 +134,9 @@ func getEnvProxy() *url.URL {
 		httpProxy = os.Getenv("HTTP_PROXY")
 	}
 	if httpProxy != "" {
+		if !strings.HasPrefix(httpProxy, "http://") {
+			httpProxy = "http://" + httpProxy
+		}
 		proxyURL, err := url.Parse(httpProxy)
 		if err != nil {
 			log.Printf("parse http proxy: %s occur error: %s\n", httpProxy, err)
@@ -142,27 +163,27 @@ func checkAuthorization(authcode string) string {
 	}
 }
 
-func Get(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Get(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("GET", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Post(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Post(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("POST", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Put(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Put(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("PUT", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Patch(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Patch(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("PATCH", serviceAddr, apiPath, timeout, payload, kwarg)
 }
 
-func Delete(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]string) (Response, error) {
+func Delete(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (Response, error) {
 	kwarg, timeout := parseTimeout(kwargs...)
 	return request("DELETE", serviceAddr, apiPath, timeout, payload, kwarg)
 }
