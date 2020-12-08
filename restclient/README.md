@@ -54,7 +54,7 @@
 	    serviceAddr := "sparrow-product-svc:8001"
 	    apiPath := "/api/sparrow_products/products/create/"
 	    data := Data{"test", 99, 0}
-		kwargs := map[string]interface{}{"timeout":5000, "headers":ctx.Request().Header}
+	    kwargs := map[string]interface{}{"timeout":5000, "headers":ctx.Request().Header}
 	    res, err := restclient.Post(serviceAddr, apiPath, data, kwargs)
 	    if err != nil {
 	    // do something
