@@ -53,7 +53,7 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	if err != nil {
 		return Response{}, err
 	}
-	headers, ok := kwarg["headers"].(map[string][]string)
+	headers, ok := kwarg["headers"].(http.Header)
 	if ok {
 		for key, values := range headers {
 			for _, value := range values {
