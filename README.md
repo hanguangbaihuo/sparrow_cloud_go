@@ -31,6 +31,10 @@
 
 [发送通知消息（钉钉和微信）](/robot/README.md)
 
+### lanyue ###
+
+[发送揽月app消息](/lanyue/README.md)
+
 ### swag ###
 
 [swagger文档注册](/swag/README.md)

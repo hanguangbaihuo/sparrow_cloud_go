@@ -109,7 +109,6 @@ func parseTimeout(kwargs ...map[string]interface{}) (map[string]interface{}, int
 		kwarg = kwargs[0]
 	}
 	var timeout int64
-	timeout = 10000
 
 	switch timeoutVar := kwarg["timeout"].(type) {
 	case int:
@@ -123,6 +122,8 @@ func parseTimeout(kwargs ...map[string]interface{}) (map[string]interface{}, int
 			log.Printf("parse timeout error in restclient: %s\n", err)
 			timeout = 10000
 		}
+	default:
+		timeout = 10000
 	}
 	return kwarg, timeout
 }

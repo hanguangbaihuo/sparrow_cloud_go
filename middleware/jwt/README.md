@@ -9,17 +9,12 @@
     )
 
     app := iris.New()
-    jwtMiddleware := jwt.DefaultJwtMiddleware("your_jwt_secret")
-    // 自定义jwt中间件配置
-    // jwtMiddleware := jwt.New(jwt.Config{
-    //      ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-    // 	    return []byte("jwt_secret"), nil
-    // 	    },
-    // 	    SigningMethod: jwt.SigningMethodHS256,
-    //})
-
     // 全局添加中间件
-    app.Use(jwtMiddleware.Serve)
+    app.Use(jwt.AutoServe)
+
+    // 下列使用方式将会废弃
+    // jwtMiddleware := jwt.DefaultJwtMiddleware("your_jwt_secret")
+    // app.Use(jwtMiddleware.Serve)
     ```
 
 #### 注意

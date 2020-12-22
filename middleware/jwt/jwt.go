@@ -3,6 +3,7 @@ package jwt
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -133,6 +134,29 @@ func (m *Middleware) Get(ctx context.Context) *jwt.Token {
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
+	_, err := m.CheckJWT(ctx)
+	if err != nil {
+		m.Config.ErrorHandler(ctx, err)
+		return
+	}
+
+	// If everything ok then call next.
+	ctx.Next()
+}
+
+// AutoServe the jwt middleware's action
+func AutoServe(ctx context.Context) {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		utils.LogErrorf(ctx, "[JWT] can not get JWT_SECRET from environment, must configure it!")
+	}
+	m := New(Config{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			return []byte(jwtSecret), nil
+		},
+		CredentialsOptional: true,
+		SigningMethod:       SigningMethodHS256,
+	})
 	_, err := m.CheckJWT(ctx)
 	if err != nil {
 		m.Config.ErrorHandler(ctx, err)
