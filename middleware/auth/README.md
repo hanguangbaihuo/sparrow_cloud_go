@@ -36,6 +36,12 @@
     // user := ctx.Values().Get("user")
     fmt.Println(user.ID, user.IsAuthenticated)
 
+
+#### 获取token中的其他数据
+
+	claimInf := ctx.Values().Get(auth.DefaultClaimsKey).(map[string]interface{})
+	fmt.Println(claimInf["app_id"])
+
 #### 无需auth中间件获取User
 
 	user := auth.CheckUser(ctx)
