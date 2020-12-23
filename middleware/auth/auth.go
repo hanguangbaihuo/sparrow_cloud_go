@@ -10,6 +10,8 @@ import (
 	"github.com/kataras/iris/v12/context"
 )
 
+const DefaultClaimsKey = "claims"
+
 var (
 	// ErrTokenMissing is the error value that it's returned when
 	// a token is not found based on the token extractor.
@@ -73,6 +75,13 @@ func authenticate(ctx context.Context, token interface{}) (User, error) {
 		utils.LogDebugf(ctx, "[AUTH] token is not jwt MapClaim type: %v\n", jtoken.Claims)
 		return User{}, ErrTokenType
 	}
+	// 存储token中所有数据
+	data := make(map[string]interface{})
+	for key, value := range claims {
+		data[key] = value
+	}
+	ctx.Values().Set(DefaultClaimsKey, data)
+	// 获取uid
 	var id string
 	id, ok = claims["uid"].(string)
 	if !ok {
