@@ -1,8 +1,6 @@
 package lanyue
 
 import (
-	"errors"
-	"log"
 	"os"
 
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
@@ -19,11 +17,11 @@ type InputData struct {
 	ShopID     int      `json:"shop_id,omitempty"`
 	MsgSender  string   `json:"msg_sender"`
 	CodeType   string   `json:"code_type"`
-	UserIDList []string `json:"user_id_list"`
+	UserIDList []string `json:"user_id_list,omitempty"`
 	Msg        Msg      `json:"msg"`
 }
 
-func SendMsg(data interface{}, codeType string, contentType string, msgSender string, kwargs ...map[string]interface{}) error {
+func SendMsg(data interface{}, codeType string, contentType string, msgSender string, kwargs ...map[string]interface{}) (restclient.Response, error) {
 	lanyueMsgSvc := os.Getenv("SC_LY_MESSAGE")
 	lanyueMsgApi := os.Getenv("SC_LY_MESSAGE_API")
 	kwarg := make(map[string]interface{})
@@ -48,13 +46,16 @@ func SendMsg(data interface{}, codeType string, contentType string, msgSender st
 		},
 	}
 	res, err := restclient.Post(lanyueMsgSvc, lanyueMsgApi, inputdata, kwargs...)
-	if err != nil {
-		log.Printf("send lanyue message occur error: %s\n", err)
-		return err
-	}
-	if res.Code != 200 {
-		log.Printf("send lanyue message occur error, code %v, body %v\n", res.Code, string(res.Body))
-		return errors.New(string(res.Body))
-	}
-	return nil
+	return res, err
+	// if err != nil {
+	// 	log.Printf("send lanyue message occur error: %s\n", err)
+	// 	return err
+	// }
+	// if res.Code != 200 {
+	// 	log.Printf("send lanyue message occur error, code %v, body %v\n", res.Code, string(res.Body))
+	// 	return errors.New(string(res.Body))
+	// }
+	// log.Printf("send data: %v\n", inputdata)
+	// log.Printf("res is %v, %v\n", res.Code, string(res.Body))
+	// return nil
 }
