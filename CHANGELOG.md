@@ -1,6 +1,10 @@
 # Changelog
 项目更改记录
 
+## [0.7.2]
+### Changed
+- Modify the send lanyue message function
+
 ## [0.7.1]
 ### Added
 - Save more jwt token claims information to middleware
