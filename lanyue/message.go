@@ -9,36 +9,45 @@ import (
 )
 
 type Msg struct {
-	ContentType string                 `json:"content_type"`
-	Data        map[string]interface{} `json:"data"`
+	ContentType string      `json:"content_type"`
+	Data        interface{} `json:"data"`
+	NickName    string      `json:"nickname,omitempty"`
+	Title       string      `json:"title,omitempty"`
 }
 
 type InputData struct {
-	Msg       Msg    `json:"msg"`
-	CodeType  string `json:"code_type"`
-	MsgSender string `json:"msg_sender"`
-	ShopID    string `json:"shop_id"`
+	ShopID     int      `json:"shop_id,omitempty"`
+	MsgSender  string   `json:"msg_sender"`
+	CodeType   string   `json:"code_type"`
+	UserIDList []string `json:"user_id_list"`
+	Msg        Msg      `json:"msg"`
 }
 
-func SendMsg(msg map[string]interface{}, codeType string, contentType string, msgSender string, kwargs ...map[string]interface{}) error {
+func SendMsg(data interface{}, codeType string, contentType string, msgSender string, kwargs ...map[string]interface{}) error {
 	lanyueMsgSvc := os.Getenv("SC_LY_MESSAGE")
 	lanyueMsgApi := os.Getenv("SC_LY_MESSAGE_API")
 	kwarg := make(map[string]interface{})
 	if len(kwargs) > 0 {
 		kwarg = kwargs[0]
 	}
-	var shopID string
-	shopID, _ = kwarg["shop_id"].(string)
-	data := InputData{
+	shopID, _ := kwarg["shop_id"].(int)
+	userIDList, _ := kwarg["user_id_list"].([]string)
+	nickName, _ := kwarg["nickname"].(string)
+	title, _ := kwarg["title"].(string)
+
+	inputdata := InputData{
+		ShopID:     shopID,
+		MsgSender:  msgSender,
+		CodeType:   codeType,
+		UserIDList: userIDList,
 		Msg: Msg{
 			ContentType: contentType,
-			Data:        msg,
+			Data:        data,
+			NickName:    nickName,
+			Title:       title,
 		},
-		CodeType:  codeType,
-		MsgSender: msgSender,
-		ShopID:    shopID,
 	}
-	res, err := restclient.Post(lanyueMsgSvc, lanyueMsgApi, data, kwargs...)
+	res, err := restclient.Post(lanyueMsgSvc, lanyueMsgApi, inputdata, kwargs...)
 	if err != nil {
 		log.Printf("send lanyue message occur error: %s\n", err)
 		return err
