@@ -35,6 +35,10 @@
 
 [发送揽月app消息](/lanyue/README.md)
 
+### distributedlock ###
+
+[分布式锁加锁及解锁](/distributedlock/README.md)
+
 ### swag ###
 
 [swagger文档注册](/swag/README.md)
