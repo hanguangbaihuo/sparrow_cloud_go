@@ -1,6 +1,10 @@
 # Changelog
 项目更改记录
 
+## [0.8.0]
+### Added
+- Distributed lock client
+
 ## [0.7.2]
 ### Changed
 - Modify the send lanyue message function
