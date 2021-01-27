@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	distributedlockSvc = os.Getenv("SPARROW_DISTRIBUTED_LOCK_SVC")
-	distributedlockApi = os.Getenv("SPARROW_DISTRIBUTED_LOCK_API")
+	distributedlockSvc = os.Getenv("SC_SPARROW_DISTRIBUTED_LOCK_SVC")
+	distributedlockApi = os.Getenv("SC_SPARROW_DISTRIBUTED_LOCK_API")
 )
 
 type LockData struct {
