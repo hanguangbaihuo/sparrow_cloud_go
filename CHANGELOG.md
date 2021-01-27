@@ -1,6 +1,10 @@
 # Changelog
 项目更改记录
 
+## [0.8.1]
+### Changed
+- Modify the svc and api key of Distributed lock client
+
 ## [0.8.0]
 ### Added
 - Distributed lock client
