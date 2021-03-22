@@ -17,6 +17,7 @@ require (
 	github.com/onsi/gomega v1.10.3 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/streadway/amqp v1.0.0
 	github.com/swaggo/swag v1.6.9
 	github.com/valyala/fasthttp v1.17.0 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
