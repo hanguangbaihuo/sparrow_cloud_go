@@ -153,7 +153,7 @@ func (w *Worker) updateTaskResult(taskid interface{}, status string, result stri
 	log.Printf("Update task database info task_id %v: %v\n", taskid, res)
 }
 
-func (w *Worker) Run(queueName string, funcMap map[string]Func) {
+func (w *Worker) Run() {
 	amqpURIFormat := "amqp://%s:%s@%s:%s/%s"
 	// amqpURI := "amqp://hg_test:jft87JheHe23@39.103.7.185:5672/sparrow_test"
 	amqpURI := fmt.Sprintf(amqpURIFormat, w.BrokerUserName, w.BrokerPassword, w.BrokerHost, w.BrokerPort, w.BrokerVirtualHost)
@@ -283,5 +283,4 @@ func doWork(m MessageBoby, fm map[string]Func, r chan Result) {
 func (w *Worker) sendResult(taskid interface{}, taskInfo string, r chan Result) {
 	res := <-r
 	w.updateTaskResult(taskid, res.Status, "", res.TraceBack, taskInfo)
-
 }
