@@ -150,7 +150,7 @@ func (w *Worker) updateTaskResult(taskid interface{}, status string, result stri
 		log.Printf("Update task database info task_id %v error: %s\n", taskid, err)
 		return
 	}
-	log.Printf("Update task database info task_id %v: %v\n", taskid, res)
+	log.Printf("Update task database info task_id %v: %s, %d\n", taskid, res.Body, res.Code)
 }
 
 func (w *Worker) Run() {
