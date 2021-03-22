@@ -232,26 +232,31 @@ func (w *Worker) Run() {
 		setParentOptions(d.Headers["task_id"], messageBody.Name)
 
 		// execute message code func
-		status := "SUCCESS"
-		var traceback string
+		// status := "SUCCESS"
+		// var traceback string
 
-		funcDo, ok := w.FuncMap[messageBody.Name]
-		if !ok {
-			log.Printf("not found '%s' function\n", messageBody.Name)
-			status = "FAILURE"
-			traceback = "not found " + messageBody.Name + "function"
-			// continue
-		} else {
-			err = funcDo(messageBody.Args, messageBody.Kwargs)
-			if err != nil {
-				status = "FAILURE"
-				traceback = err.Error()
-				log.Printf("exec %s function error %s\n", messageBody.Name, err)
-			}
-		}
+		// funcDo, ok := w.FuncMap[messageBody.Name]
+		// if !ok {
+		// 	log.Printf("not found '%s' function\n", messageBody.Name)
+		// 	status = "FAILURE"
+		// 	traceback = "not found " + messageBody.Name + "function"
+		// 	// continue
+		// } else {
+		// 	err = funcDo(messageBody.Args, messageBody.Kwargs)
+		// 	if err != nil {
+		// 		status = "FAILURE"
+		// 		traceback = err.Error()
+		// 		log.Printf("exec %s function error %s\n", messageBody.Name, err)
+		// 	}
+		// }
+
+		// taskInfo := getTaskInfo(d.Headers, messageBody)
+		// w.updateTaskResult(d.Headers["task_id"], status, "", traceback, taskInfo)
 
 		taskInfo := getTaskInfo(d.Headers, messageBody)
-		w.updateTaskResult(d.Headers["task_id"], status, "", traceback, taskInfo)
+		r := make(chan Result)
+		go w.sendResult(d.Headers["task_id"], taskInfo, r)
+		go doWork(messageBody, w.FuncMap, r)
 		// d.Ack(false)
 	}
 }
