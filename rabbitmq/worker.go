@@ -155,7 +155,6 @@ func (w *Worker) updateTaskResult(taskid interface{}, status string, result stri
 
 func (w *Worker) Run() {
 	amqpURIFormat := "amqp://%s:%s@%s:%s/%s"
-	// amqpURI := "amqp://hg_test:jft87JheHe23@39.103.7.185:5672/sparrow_test"
 	amqpURI := fmt.Sprintf(amqpURIFormat, w.BrokerUserName, w.BrokerPassword, w.BrokerHost, w.BrokerPort, w.BrokerVirtualHost)
 	connection, err := amqp.Dial(amqpURI)
 	failOnError(err, "dial amqp error")
