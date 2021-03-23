@@ -8,8 +8,8 @@
     
 #### 配置前提
 
-    需要先配置JWT中间件，详见 [JWT Middleware](/middleware/jwt/README.md)
-    接口添加auth认证，详见 [AUTH Middleware](/middleware/auth/README.md)
+需要先配置JWT中间件，详见 [JWT Middleware](/middleware/jwt/README.md)
+接口添加auth认证，详见 [AUTH Middleware](/middleware/auth/README.md)
 
 #### 使用前注意
 

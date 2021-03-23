@@ -25,8 +25,8 @@
 
 ### rabbitmq ###
 
-[发送异步消息和异步延时消息](/rabbitmq/README.md#发送异步消息)
-[消费异步任务](/rabbitmq/README.md#消费异步消息)
+* [发送异步消息和异步延时消息](/rabbitmq/README.md#发送异步消息)
+* [消费异步任务](/rabbitmq/README.md#消费异步消息)
 
 ### robot ###
 

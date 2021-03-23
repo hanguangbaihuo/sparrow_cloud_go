@@ -8,7 +8,7 @@
     
 #### 配置前提
 
-	需要先配置JWT中间件，详见 [JWT Middleware](/middleware/jwt/README.md)
+需要先配置JWT中间件，详见 [JWT Middleware](/middleware/jwt/README.md)
 
 #### 使用方法
 	
