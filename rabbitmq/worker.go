@@ -255,7 +255,7 @@ func (w *Worker) Run() {
 		taskInfo := getTaskInfo(d.Headers, messageBody)
 		r := make(chan Result)
 		go w.sendResult(d.Headers["task_id"], taskInfo, r)
-		go doWork(messageBody, w.FuncMap, r)
+		go w.doWork(messageBody, r)
 		// d.Ack(false)
 	}
 }
@@ -265,10 +265,10 @@ type Result struct {
 	TraceBack string
 }
 
-func doWork(m MessageBoby, fm map[string]Func, r chan Result) {
+func (w *Worker) doWork(m MessageBoby, r chan Result) {
 	status := "SUCCESS"
 	var traceback string
-	funcDo, ok := fm[m.Name]
+	funcDo, ok := w.FuncMap[m.Name]
 	if !ok {
 		log.Printf("not found '%s' function\n", m.Name)
 		status = "FAILURE"
