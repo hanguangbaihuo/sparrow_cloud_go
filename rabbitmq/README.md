@@ -1,10 +1,12 @@
-### 发送异步消息
+## 异步消息
 
-### 安装
+## 安装
 
     go get github.com/hanguangbaihuo/sparrow_cloud_go/
 
-### 注意
+### 发送异步消息
+
+#### 注意
 
     必须配置环境变量:
     SC_TASK_PROXY
@@ -58,3 +60,45 @@
     第一个返回数据类型是接口类型，如果需要返回的task_id，需要先进行断言。
     非延时消息返回类型是string
     延时消息返回类型是float64
+
+### 消费异步消息
+
+#### 注意
+
+    必须配置的环境变量
+    SC_CONSUMER_RETRY_TIMES 
+    SC_CONSUMER_INTERVAL_TIME
+    SC_BROKER_SERVICE_HOST
+    SC_BROKER_SERVICE_PORT
+    SC_BROKER_USERNAME
+    SC_BROKER_PASSWORD
+    SC_BROKER_VIRTUAL_HOST
+    SC_BACKEND_SERVICE_SVC
+    SC_BACKEND_SERVICE_API
+
+#### 消费异步消息示例
+
+    import (
+        rq "github.com/hanguangbaihuo/sparrow_cloud_go/rabbitmq"
+    )
+
+    // 1. 消费者函数
+    func testConsumerFunc(args []interface{}, kwargs map[string]interface{}) error {
+        // args是接收到的位置参数，kwargs是接收到的关键字参数
+        log.Printf("args %v\n", args)
+        log.Printf("kwargs %v\n", kwargs)
+        // return nil
+        return errors.New("test failure situation")
+    }
+
+    // 2. messageCode对应的消费者函数
+    var funcMap = map[string]rq.Func{
+        "test7": testConsumerFunc,
+    }
+
+    func main() {
+        // 3. 初始化消费者, 第一个参数是消费者队列名queue， 第二个参数是第2步中的对应关系变量
+        w := rq.New("test9", funcMap)
+        // 4. 开始消费
+        w.Run()
+    }

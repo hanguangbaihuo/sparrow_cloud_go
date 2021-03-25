@@ -1,6 +1,10 @@
 # Changelog
 项目更改记录
 
+## [0.9.0]
+### Added
+- RabbitMQ consumer worker
+
 ## [0.8.1]
 ### Changed
 - Modify the svc and api key of Distributed lock client
