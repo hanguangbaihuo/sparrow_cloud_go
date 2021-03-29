@@ -1,13 +1,20 @@
 package authorization
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
 	"os"
+	"strings"
+	"time"
+
+	"crypto/md5"
 
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
 )
+
+var ctx = context.Background()
 
 type TokenData struct {
 	Token     string `json:"token"`
@@ -15,6 +22,16 @@ type TokenData struct {
 }
 
 func GetAppToken(svcName string, svcSecret string) (string, error) {
+	key := getAppKey(svcSecret)
+	// 若配置redis缓存，先从缓存中获取
+	if tokenCache != nil {
+		value, err := tokenCache.Get(ctx, key).Result()
+		if err != nil {
+			log.Printf("get app token from cache occur error: %s\n", err)
+		} else {
+			return value, nil
+		}
+	}
 	appManageSvc := os.Getenv("SC_MANAGE_SVC")
 	appManageApi := os.Getenv("SC_MANAGE_API")
 	data := struct {
@@ -39,10 +56,25 @@ func GetAppToken(svcName string, svcSecret string) (string, error) {
 		log.Printf("unmarshal token occur error %v\n", err)
 		return "", err
 	}
+	// 若配置redis缓存，则将结果缓存
+	if tokenCache != nil {
+		timeout := tokenData.ExpiresIn - 120
+		tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second)
+	}
 	return tokenData.Token, nil
 }
 
 func GetUserToken(svcName string, svcSecret string, userID string) (string, error) {
+	key := getUserKey(userID)
+	// 若配置redis缓存，先从缓存中获取
+	if tokenCache != nil {
+		value, err := tokenCache.Get(ctx, key).Result()
+		if err != nil {
+			log.Printf("get user token from cache occur error: %s\n", err)
+		} else {
+			return value, nil
+		}
+	}
 	appManageSvc := os.Getenv("SC_MANAGE_SVC")
 	appManageApi := os.Getenv("SC_MANAGE_API")
 	data := struct {
@@ -69,5 +101,24 @@ func GetUserToken(svcName string, svcSecret string, userID string) (string, erro
 		log.Printf("unmarshal token occur error %v\n", err)
 		return "", err
 	}
+	// 若配置redis缓存，则将结果缓存
+	if tokenCache != nil {
+		timeout := tokenData.ExpiresIn - 120
+		tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second)
+	}
 	return tokenData.Token, nil
+}
+
+func getAppKey(svcSecret string) string {
+	return strings.ToUpper("APP_TOKEN_" + getKey(svcSecret))
+}
+
+func getUserKey(userID string) string {
+	return strings.ToUpper("USER_TOKEN_" + getKey(userID))
+}
+
+// getKey: data is svcSecret in AppToken, userID in UserToken
+func getKey(data string) string {
+	res := md5.Sum([]byte(data))
+	return string(res[:7])
 }
