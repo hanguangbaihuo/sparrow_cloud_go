@@ -11,10 +11,14 @@ import (
 
 	"crypto/md5"
 
+	"github.com/hanguangbaihuo/sparrow_cloud_go/cache"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
 )
 
-var ctx = context.Background()
+var (
+	ctx        = context.Background()
+	tokenCache = cache.GetOrNil()
+)
 
 type TokenData struct {
 	Token     string `json:"token"`
