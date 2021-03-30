@@ -1,6 +1,12 @@
 # Changelog
 项目更改记录
 
+## [0.10.0]
+### Added
+- Cache
+### Changed
+- add redis cache when GetAppToken and GetUserToken in authorization
+
 ## [0.9.0]
 ### Added
 - RabbitMQ consumer worker
