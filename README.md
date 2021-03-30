@@ -28,6 +28,10 @@
 * [发送异步消息和异步延时消息](/rabbitmq/README.md#发送异步消息)
 * [消费异步任务](/rabbitmq/README.md#消费异步消息)
 
+### cache ###
+
+[cache缓存](/cache/README.md)
+
 ### robot ###
 
 [发送通知消息（钉钉和微信）](/robot/README.md)
