@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -16,8 +17,7 @@ import (
 )
 
 var (
-	ctx        = context.Background()
-	tokenCache = cache.GetOrNil()
+	ctx = context.Background()
 )
 
 type TokenData struct {
@@ -27,11 +27,12 @@ type TokenData struct {
 
 func GetAppToken(svcName string, svcSecret string) (string, error) {
 	key := getAppKey(svcSecret)
+	tokenCache := cache.GetOrNil()
 	// 若配置redis缓存，先从缓存中获取
 	if tokenCache != nil {
 		value, err := tokenCache.Get(ctx, key).Result()
 		if err != nil {
-			log.Printf("get app token from cache occur error: %s\n", err)
+			log.Printf("get app token from cache is %s, set it later\n", err)
 		} else {
 			return value, nil
 		}
@@ -63,18 +64,21 @@ func GetAppToken(svcName string, svcSecret string) (string, error) {
 	// 若配置redis缓存，则将结果缓存
 	if tokenCache != nil {
 		timeout := tokenData.ExpiresIn - 120
-		tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second)
+		if err := tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second).Err(); err != nil {
+			log.Printf("setex app token to cache err %s\n", err)
+		}
 	}
 	return tokenData.Token, nil
 }
 
 func GetUserToken(svcName string, svcSecret string, userID string) (string, error) {
 	key := getUserKey(userID)
+	tokenCache := cache.GetOrNil()
 	// 若配置redis缓存，先从缓存中获取
 	if tokenCache != nil {
 		value, err := tokenCache.Get(ctx, key).Result()
 		if err != nil {
-			log.Printf("get user token from cache occur error: %s\n", err)
+			log.Printf("get user token from cache is %s, set it later\n", err)
 		} else {
 			return value, nil
 		}
@@ -108,7 +112,9 @@ func GetUserToken(svcName string, svcSecret string, userID string) (string, erro
 	// 若配置redis缓存，则将结果缓存
 	if tokenCache != nil {
 		timeout := tokenData.ExpiresIn - 120
-		tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second)
+		if err := tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second).Err(); err != nil {
+			log.Printf("setex user token to cache err %s\n", err)
+		}
 	}
 	return tokenData.Token, nil
 }
@@ -123,6 +129,7 @@ func getUserKey(userID string) string {
 
 // getKey: data is svcSecret in AppToken, userID in UserToken
 func getKey(data string) string {
-	res := md5.Sum([]byte(data))
-	return string(res[:7])
+	sign := md5.Sum([]byte(data))
+	signStr := fmt.Sprintf("%x", sign)
+	return signStr[:7]
 }
