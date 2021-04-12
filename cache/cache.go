@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"log"
 
 	"github.com/go-redis/redis/v8"
@@ -15,6 +16,19 @@ func InitCache(redisAddr, redisPasswd string, redisDb int) *redis.Client {
 		Password: redisPasswd, // redis password
 		DB:       redisDb,     // redis database, select 0
 	})
+	_, err := cache.Ping(context.Background()).Result()
+	if err != nil {
+		panic(err)
+	}
+	return cache
+}
+
+func InitCustomCache(opt redis.Options) *redis.Client {
+	cache = redis.NewClient(&opt)
+	_, err := cache.Ping(context.Background()).Result()
+	if err != nil {
+		panic(err)
+	}
 	return cache
 }
 
