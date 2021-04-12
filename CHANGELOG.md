@@ -1,6 +1,12 @@
 # Changelog
 项目更改记录
 
+## [0.10.1]
+### Added
+- Custom option for cache
+### Changed
+- add ping mothod when init cache
+
 ## [0.10.0]
 ### Added
 - Cache
