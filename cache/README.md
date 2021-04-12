@@ -41,11 +41,16 @@
 
 ### 初始化方法
 
+    简单用法
     InitCache(redisAddr, redisPasswd string, redisDb int)
     redisAddr：redis的链接地址
     redisPasswd：redis的认证密码
     redisDb：选用的redis数据库
     返回redis的Client链接符*redis.Client
+
+    自定义用法
+    InitCustomCache(opt redis.Options) *redis.Client
+    opt: 自定义一些redis的参数
 
 ### 获取Cache链接符
 
