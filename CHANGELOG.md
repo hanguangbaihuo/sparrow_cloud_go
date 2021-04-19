@@ -1,6 +1,10 @@
 # Changelog
 项目更改记录
 
+## [0.11.0]
+### Added
+- frontlock middleware
+
 ## [0.10.1]
 ### Added
 - Custom option for cache
