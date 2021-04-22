@@ -13,7 +13,8 @@
 * [JWT Middleware](/middleware/jwt/README.md) : 解析 JWT Token
 * [AUTH Middleware](/middleware/auth/README.md) : 认证用户ID
 * [AccessControl Middleware](/middleware/accesscontrol/README.md) : 访问控制
-* [Opentracing Middleware](/middleware/opentracing/README.md): 追踪链中间件，配合restclient使用，追踪链注入由envoy完成
+* [Opentracing Middleware](/middleware/opentracing/README.md) : 追踪链中间件，配合restclient使用，追踪链注入由envoy完成
+* [FrontLock Middleware](/middleware/frontlock/README.md) : 前端防重复提及锁中间件
 
 ### restclient ###
 
