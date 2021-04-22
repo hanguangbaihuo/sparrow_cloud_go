@@ -36,3 +36,15 @@
         })
         app.Listen("0.0.0.0:8001")
     }
+
+#### 注意
+
+    如果使用该中间件，下面3行是必须要写的，缺一不可。
+    除非如果你已经通过其他方法可以在执行业务逻辑代码后，执行Done中的中间件。否则不要更改
+    app.Use(fl.CheckLock)
+
+    app.Done(fl.UpdateLock)
+
+    app.SetExecutionRules(iris.ExecutionRules{
+        Done: iris.ExecutionOptions{Force: true},
+    })
