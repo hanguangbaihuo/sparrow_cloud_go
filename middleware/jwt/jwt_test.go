@@ -15,17 +15,12 @@ import (
 	"github.com/kataras/iris/v12/httptest"
 )
 
-type Response struct {
-	Text string `json:"text"`
-}
-
 var (
-	app       = iris.New()
 	jwtSecret = []byte("My JWTSecret")
 )
 
 func TestBasicJwt(t *testing.T) {
-
+	var app = iris.New()
 	os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
@@ -46,6 +41,7 @@ func TestBasicJwt(t *testing.T) {
 		Expect().Status(iris.StatusOK)
 }
 func TestEmptyToken(t *testing.T) {
+	var app = iris.New()
 	os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
@@ -60,6 +56,7 @@ func TestEmptyToken(t *testing.T) {
 }
 
 func TestExpireToken(t *testing.T) {
+	var app = iris.New()
 	os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
@@ -80,6 +77,7 @@ func TestExpireToken(t *testing.T) {
 }
 
 func TestInvalidToken(t *testing.T) {
+	var app = iris.New()
 	os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
