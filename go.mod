@@ -28,4 +28,4 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 )
 
-replace github.com/swaggo/swag => github.com/waro163/swag v1.7.1
+replace github.com/swaggo/swag => github.com/waro163/swag v1.7.3
