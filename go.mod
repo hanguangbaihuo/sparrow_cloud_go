@@ -3,6 +3,7 @@ module github.com/hanguangbaihuo/sparrow_cloud_go
 go 1.13
 
 require (
+	github.com/agiledragon/gomonkey v2.0.2+incompatible
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
@@ -17,6 +18,7 @@ require (
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/streadway/amqp v1.0.0
+	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/swag v1.6.9
 	github.com/valyala/fasthttp v1.17.0 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
