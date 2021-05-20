@@ -4,8 +4,6 @@ import (
 	"os"
 	"testing"
 
-	// "github.com/agiledragon/gomonkey"
-
 	"github.com/agiledragon/gomonkey"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
 	"github.com/stretchr/testify/assert"
