@@ -84,10 +84,10 @@ func authenticate(ctx context.Context, token interface{}) (User, error) {
 	// 获取uid
 	var id string
 	id, ok = claims["uid"].(string)
-	if !ok {
-		id = claims["id"].(string)
-	}
-	if id == "" {
+	// if !ok {
+	// 	id = claims["id"].(string)
+	// }
+	if !ok || id == "" {
 		utils.LogInfof(ctx, "[AUTH] uid not found in Jwt Claim: %v\n", claims)
 		return User{}, ErrUserIDMissing
 	}
