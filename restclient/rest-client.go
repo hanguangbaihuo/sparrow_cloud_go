@@ -61,10 +61,14 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 			}
 		}
 	}
-	token, ok := kwarg["Authorization"].(string)
+	token, ok := kwarg["token"].(string)
 	if ok {
 		validToken := checkAuthorization(token)
 		req.Header.Set("Authorization", validToken)
+	}
+	authorization, ok := kwarg["Authorization"].(string)
+	if ok {
+		req.Header.Set("Authorization", authorization)
 	}
 	contentType, ok := kwarg["Content-Type"].(string)
 	if ok {

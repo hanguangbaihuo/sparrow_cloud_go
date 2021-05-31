@@ -81,8 +81,8 @@
 	headers：要传递的请求头信息，数据格式是http.Header类型
 	Content-Type：默认为"application/json"
 	Accept： 默认为"application/json"
-	Authorization：添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串；
-				如果只有一个token字符串，则会设置为"token "+token，默认为空
+	Authorization：添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串
+	token：服务内部请求认证的token，如果只有一个token字符串，则会设置为"token "+token，默认为空
 	
 	举例：
 	kwargs := map[string]interface{}{"timeout":10000}
