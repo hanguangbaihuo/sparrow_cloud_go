@@ -14,7 +14,7 @@
 
 #### 文档书写示例1
 
-    // @Summary 接口用途，列表页接口后展示各字段
+    // @Summary 接口用途，列表页接口后展示该字段
     // @Description ### 接口格式请求格式说明<br> 
     // @Description     参数：<br> 
     // @Description         {<br> 
@@ -33,13 +33,53 @@
 
 #### 文档书写示例2
 
-    // @Summary 接口用途，列表页接口后展示各字段
+    // @Summary 接口用途，列表页接口后展示该字段
     // @Description.markdown processReuqest.md
     // @Router /api/sparrow_test/justtest/create [post]
     func processReuqest (iris.Context) {
         //do something
     }
     使用该种方式需要配置接口文档路径：cfg.MarkdownFilesDir，其中processReuqest.md文件必须放在该目录下
+
+#### 文档书写示例3
+
+    // @Summary 接口用途，列表页接口后展示该字段
+    // @Description.markdown ./app/processReuqest.md@create api
+    // @Router /api/sparrow_test/justtest/create [post]
+    func processReuqest (iris.Context) {
+        //do something
+    }
+
+    该方式可以指定目录，目录是针对cmd.go文件的相对路径。不指定目录则使用配置的公共路径cfg.MarkdownFilesDir；
+    同时也可以指定文件中的路由数据，即@create api，如果不指定则为整个文件数据。markdown文件书写方式如下，一个markdown文件可以写多个路由的描述
+    使用该种方式需要替换官方源码，在go.mod最后添加 replace github.com/swaggo/swag => github.com/hanguangbaihuo/swag v1.7.1
+
+#### 示例3的markdown文件书写示例
+
+    @create api
+    # 这个某个接口的post描述
+        参数：
+            {
+                "id":1,
+                "name":"test"
+            }
+        返回：
+            {
+                "message":"ok"
+                "code":0
+            }
+    @delete some router
+    # 只要按照markdown格式写就可以
+    ## 参数
+        {
+            "payload":"sssss",
+            "method":"delete"
+        }
+    ## 返回
+        {
+            "code":-1,
+            "message":"error"
+        }
 
 #### 命令文件
 
