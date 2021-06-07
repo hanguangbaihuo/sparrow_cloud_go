@@ -3,9 +3,7 @@ package jwt
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/utils"
@@ -120,10 +118,13 @@ func New(cfg ...Config) *Middleware {
 func DefaultJwtMiddleware(jwtSecret string) *Middleware {
 	return New(Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwtSecret), nil
+			method, ok := token.Header["alg"].(string)
+			if ok {
+				return GetSecret(method)
+			}
+			return []byte(""), fmt.Errorf("[JWT] signing method (alg) is unspecified.")
 		},
 		CredentialsOptional: true,
-		SigningMethod:       SigningMethodHS256,
 	})
 }
 
@@ -146,17 +147,15 @@ func (m *Middleware) Serve(ctx context.Context) {
 
 // AutoServe the jwt middleware's action
 func AutoServe(ctx context.Context) {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		utils.LogErrorf(ctx, "[JWT] can not get JWT_SECRET from environment, must configure it!")
-		panic("[JWT] can not get JWT_SECRET from environment, must configure it!")
-	}
 	m := New(Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwtSecret), nil
+			method, ok := token.Header["alg"].(string)
+			if ok {
+				return GetSecret(method)
+			}
+			return []byte(""), fmt.Errorf("[JWT] signing method (alg) is unspecified.")
 		},
 		CredentialsOptional: true,
-		SigningMethod:       SigningMethodHS256,
 	})
 	_, err := m.CheckJWT(ctx)
 	if err != nil {
@@ -297,15 +296,6 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		utils.LogDebugf(ctx, "[JWT] Token is invalid")
 		m.Config.ErrorHandler(ctx, ErrTokenInvalid)
 		return nil, ErrTokenInvalid
-	}
-
-	if m.Config.Expiration {
-		if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
-			if expired := claims.VerifyExpiresAt(time.Now().Unix(), true); !expired {
-				utils.LogDebugf(ctx, "[JWT] Token is expired")
-				return nil, ErrTokenExpired
-			}
-		}
 	}
 
 	utils.LogDebugf(ctx, "[JWT] JWT: %v", parsedToken)
