@@ -13,7 +13,7 @@ func init() {
 	var err error
 	RsaPublicSecret, err = ioutil.ReadFile(RsaPublicKeyPath)
 	if err != nil {
-		panic("[JWT] read rsa public file err")
+		panic(fmt.Sprintf("[JWT] read rsa public file err: %s", err))
 	}
 }
 
