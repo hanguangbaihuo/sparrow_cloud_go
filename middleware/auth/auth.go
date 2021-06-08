@@ -3,8 +3,7 @@ package auth
 import (
 	"errors"
 
-	"github.com/dgrijalva/jwt-go"
-	myjwt "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/jwt"
+	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/jwt"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/utils"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -39,7 +38,7 @@ func ErrorHandler(ctx context.Context, err error) {
 // JWT middleware must be configured before this
 // only when your api need be authenticated, you should configure this middleware, otherwise do not configure it
 func IsAuthenticated(ctx context.Context) {
-	token := ctx.Values().Get(myjwt.DefaultContextKey)
+	token := ctx.Values().Get(jwt.DefaultContextKey)
 
 	user, err := authenticate(ctx, token)
 	if err != nil {
@@ -54,7 +53,7 @@ func IsAuthenticated(ctx context.Context) {
 // CheckUser is a function to check token contains user id,
 // return a User struct
 func CheckUser(ctx context.Context) User {
-	token := ctx.Values().Get(myjwt.DefaultContextKey)
+	token := ctx.Values().Get(jwt.DefaultContextKey)
 
 	user, _ := authenticate(ctx, token)
 	return user

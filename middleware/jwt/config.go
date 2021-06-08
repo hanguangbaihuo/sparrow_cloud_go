@@ -2,13 +2,13 @@ package jwt
 
 import "github.com/dgrijalva/jwt-go"
 
-const (
-	//DefaultContextKey jwt
-	DefaultContextKey = "jwt"
+// const (
+// 	//DefaultContextKey jwt
+// 	DefaultContextKey = "jwt"
 
-	//RawTokenKey token
-	RawTokenKey = "token"
-)
+// 	//RawTokenKey token
+// 	RawTokenKey = "token"
+// )
 
 // Config is a struct for specifying configuration options for the jwt middleware.
 type Config struct {
@@ -19,7 +19,7 @@ type Config struct {
 	// The name of the property in the request where the user (&token) information
 	// from the JWT will be stored.
 	// Default value: "jwt"
-	ContextKey string
+	// ContextKey string
 	// The function that will be called when there's an error validating the token
 	// Default value:
 	ErrorHandler errorHandler
@@ -41,5 +41,5 @@ type Config struct {
 	// When set, the expiration time of token will be check every time
 	// if the token was expired, expiration error will be returned
 	// Default: false
-	Expiration bool
+	// Expiration bool
 }
