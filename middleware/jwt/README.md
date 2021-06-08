@@ -19,18 +19,12 @@
 
 #### 注意
 
-    当使用AutoServe方法中间件时，必须配置环境变量JWT_SECRET，该变量为jwt密钥
+    必须配置的环境变量：
+    JWT_SECRET：jwt密钥
+    PUBLIC_KEY_PATH：rsa签名公钥文件路径
+
     JWT中间件只会对携带jwt token的数据进行验证，
     如果token过期或者解析无效则直接返回错误
     如果没有携带token，则直接放过。
     因此，如果用户的接口需要认证，还需要在接口中添加auth中间件认证。详见:
 [auth中间件](/middleware/auth/README.md)
-
-#### 获取原生token
-
-    token := ctx.Values().Get(jwt.RawTokenKey)
-    if token == nil {
-        //不存在
-    } else {
-        token = token.(string)
-    }
