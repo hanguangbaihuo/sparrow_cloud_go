@@ -179,8 +179,8 @@ func FromAuthHeaderToken(ctx context.Context) (string, error) {
 
 	// TODO: Make this a bit more robust, parsing-wise
 	authHeaderParts := strings.Split(authHeader, " ")
-	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "token" {
-		return "", fmt.Errorf("Authorization header format must be Token {token}")
+	if len(authHeaderParts) != 2 || strings.ToLower(authHeaderParts[0]) != "tokentest" {
+		return "", fmt.Errorf("Authorization header format must be Token {tokentest}")
 	}
 
 	return authHeaderParts[1], nil
