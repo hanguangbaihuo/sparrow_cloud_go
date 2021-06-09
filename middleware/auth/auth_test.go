@@ -20,7 +20,31 @@ func TestBase64Payload(t *testing.T) {
 	var app = iris.New()
 
 	handlePing := func(ctx context.Context) {
-		ctx.JSON(context.Map{"message": "pong"})
+		p := ctx.Values().Get(DefaultClaimsKey)
+		if p == nil {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "not found payload in middleware"})
+			return
+		}
+		data, ok := p.(map[string]interface{})
+		if !ok {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "payload is not map type"})
+			return
+		}
+		u := ctx.Values().Get(DefaultUserKey)
+		if u == nil {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "not found user in middleware"})
+			return
+		}
+		user, ok := u.(User)
+		if !ok {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "user is not User type"})
+			return
+		}
+		ctx.JSON(context.Map{"message": "pong", "payload": data, "user": user})
 	}
 
 	app.Get("/secured/ping", IsAuthenticated, handlePing)
@@ -34,8 +58,10 @@ func TestBase64Payload(t *testing.T) {
 	}
 	base64Data := base64.StdEncoding.EncodeToString(data)
 
-	e.GET("/secured/ping").WithHeader("X-Jwt-Payload", base64Data).
-		Expect().Status(iris.StatusOK).Body().Contains("pong")
+	res := e.GET("/secured/ping").WithHeader("X-Jwt-Payload", base64Data).
+		Expect().Status(iris.StatusOK)
+	res.JSON().Object().ContainsKey("payload").Value("payload").Object().ContainsKey("uid")
+	res.JSON().Object().ContainsKey("user").Value("user").Object().ContainsKey("ID")
 }
 
 func TestTextPayload(t *testing.T) {
