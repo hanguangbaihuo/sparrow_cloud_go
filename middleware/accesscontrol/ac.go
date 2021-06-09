@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/hanguangbaihuo/sparrow_cloud_go/middleware/auth"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/restclient"
@@ -37,9 +38,14 @@ func ErrorHandler(ctx context.Context, err error) {
 }
 
 // InitACConf constructs a new global access control configuration.
-func InitACConf(acAddr string, api string, serviceName string, skipAC bool) {
+func InitACConf(serviceName string, skipAC bool) {
 
-	AccessControllConf = Config{acAddr, api, serviceName, skipAC}
+	AccessControllConf = Config{
+		os.Getenv("SC_ACCESS_CONTROL_SVC"),
+		os.Getenv("SC_ACCESS_CONTROL_API"),
+		serviceName,
+		skipAC,
+	}
 }
 
 // RequestSrc is access control middleware
