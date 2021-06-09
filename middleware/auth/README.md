@@ -22,10 +22,9 @@
 	    // 初始化iris app
 	    app := iris.New()
 	    // 配置jwt中间件
-	    jwtMiddleware := jwt.DefaultJwtMiddleware("your_jwt_secret")
-		app.Use(jwtMiddleware.Serve)
+		app.Use(jwt.AutoServe)
 	    ...
-        // /test 接口需要认证才可以进行
+        // /test 接口需要认证才可以进行访问，无token访问直接返回401认证失败
 	    app.Get("/test", auth.IsAuthenticated, processRequest)
 	    app.Listen("8081")
     }
@@ -33,9 +32,7 @@
 #### 获取auth User
 
     user := ctx.Values().Get(auth.DefaultUserKey).(auth.User)
-    // user := ctx.Values().Get("user")
     fmt.Println(user.ID, user.IsAuthenticated)
-
 
 #### 获取token中的其他数据
 
@@ -44,5 +41,7 @@
 
 #### 无需auth中间件获取User
 
+	当业务接口无需用户token也可以进行访问，需要判断用户是否存在来判断业务逻辑流程
+	可以使用下列函数
 	user := auth.CheckUser(ctx)
 	fmt.Println(user.ID, user.IsAuthenticated)
