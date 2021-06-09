@@ -1,11 +1,10 @@
 package auth
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"os"
 	"testing"
-	"time"
-
-	jwt "github.com/hanguangbaihuo/sparrow_cloud_go/middleware/jwt"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
@@ -14,36 +13,59 @@ import (
 
 var (
 	jwtSecret = []byte("My JWTSecret")
+	payload   = map[string]interface{}{"uid": "abc123", "exp": 1722200316, "iat": 1622193116, "app_id": "core"}
 )
 
-func TestNormalAuth(t *testing.T) {
+func TestBase64Payload(t *testing.T) {
 	var app = iris.New()
-	os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
-		ctx.JSON(context.Map{"message": "pong"})
+		p := ctx.Values().Get(DefaultClaimsKey)
+		if p == nil {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "not found payload in middleware"})
+			return
+		}
+		data, ok := p.(map[string]interface{})
+		if !ok {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "payload is not map type"})
+			return
+		}
+		u := ctx.Values().Get(DefaultUserKey)
+		if u == nil {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "not found user in middleware"})
+			return
+		}
+		user, ok := u.(User)
+		if !ok {
+			ctx.StatusCode(iris.StatusInternalServerError)
+			ctx.JSON(context.Map{"message": "user is not User type"})
+			return
+		}
+		ctx.JSON(context.Map{"message": "pong", "payload": data, "user": user})
 	}
 
-	app.Get("/secured/ping", jwt.AutoServe, IsAuthenticated, handlePing)
+	app.Get("/secured/ping", IsAuthenticated, handlePing)
 	e := httptest.New(t, app)
 
-	// test normal token
-	token := jwt.NewTokenWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Unix() + 100,
-		"uid": "abc123",
-	})
-	tokenString, _ := token.SignedString(jwtSecret)
+	// test base64 payload
+	data, err := json.Marshal(payload)
+	if err != nil {
+		t.Errorf("jsom marshal payload error: %s\n", err)
+		return
+	}
+	base64Data := base64.StdEncoding.EncodeToString(data)
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
+	res := e.GET("/secured/ping").WithHeader("X-Jwt-Payload", base64Data).
 		Expect().Status(iris.StatusOK)
-
-	// test empty token
-	e.GET("/secured/ping").Expect().Status(iris.StatusUnauthorized)
+	res.JSON().Object().ContainsKey("payload").Value("payload").Object().ContainsKey("uid")
+	res.JSON().Object().ContainsKey("user").Value("user").Object().ContainsKey("ID")
 }
 
-func TestLostJwtMiddleware(t *testing.T) {
+func TestTextPayload(t *testing.T) {
 	var app = iris.New()
-	os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
 		ctx.JSON(context.Map{"message": "pong"})
@@ -52,15 +74,26 @@ func TestLostJwtMiddleware(t *testing.T) {
 	app.Get("/secured/ping", IsAuthenticated, handlePing)
 	e := httptest.New(t, app)
 
-	// test normal token
-	token := jwt.NewTokenWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Unix() + 100,
-		"uid": "abc123",
-	})
-	tokenString, _ := token.SignedString(jwtSecret)
+	// test text payload
+	data, err := json.Marshal(payload)
+	if err != nil {
+		t.Errorf("jsom marshal payload error: %s\n", err)
+		return
+	}
+	e.GET("/secured/ping").WithHeader("X-Jwt-Payload", string(data)).
+		Expect().Status(iris.StatusOK).Body().Contains("pong")
+}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
-		Expect().Status(iris.StatusUnauthorized)
+func TestEmptyPayloadHeader(t *testing.T) {
+	var app = iris.New()
+	handlePing := func(ctx context.Context) {
+		ctx.JSON(context.Map{"message": "pong"})
+	}
+
+	app.Get("/secured/ping", IsAuthenticated, handlePing)
+	e := httptest.New(t, app)
+
+	e.GET("/secured/ping").Expect().Status(iris.StatusUnauthorized)
 }
 
 func TestLostUIDInToken(t *testing.T) {
@@ -71,16 +104,16 @@ func TestLostUIDInToken(t *testing.T) {
 		ctx.JSON(context.Map{"message": "pong"})
 	}
 
-	app.Get("/secured/ping", jwt.AutoServe, IsAuthenticated, handlePing)
+	app.Get("/secured/ping", IsAuthenticated, handlePing)
 	e := httptest.New(t, app)
 
-	// test lost uid in token
-	token := jwt.NewTokenWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Unix() + 100,
-		// "uid": "abc123",
-	})
-	tokenString, _ := token.SignedString(jwtSecret)
+	// test text payload
+	data, err := json.Marshal(map[string]interface{}{"app_id": "core"})
+	if err != nil {
+		t.Errorf("jsom marshal payload error: %s\n", err)
+		return
+	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
-		Expect().Status(iris.StatusUnauthorized).Body().Contains("missing")
+	e.GET("/secured/ping").WithHeader("X-Jwt-Payload", string(data)).
+		Expect().Status(iris.StatusUnauthorized).Body().Contains("missing").Contains("user")
 }
