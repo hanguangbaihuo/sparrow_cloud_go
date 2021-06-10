@@ -61,9 +61,9 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 			}
 		}
 	}
-	token, ok := kwarg["token"].([]byte)
+	token, ok := kwarg["token"].(string)
 	if ok {
-		req.Header.Set("X-Jwt-Payload", string(token))
+		req.Header.Set("X-Jwt-Payload", token)
 	}
 	authorization, ok := kwarg["Authorization"].(string)
 	if ok {
