@@ -70,7 +70,7 @@
 	serviceAddr：跨服务调用的服务地址，格式类似"sparrow-product-svc:8001"或者"127.0.0.1:8000"
 	apiPath：请求服务的api，格式类似"/api/sparrow_products/products/create/"
 	payload：请求服务接口所需要的数据
-	kwargs：用来或者添加一些额外信息，见下方的kwargs详解
+	kwargs：用来添加一些额外信息，见下方的kwargs详解
 	
 ##### 方法参数中kwargs详解
 	
@@ -82,7 +82,7 @@
 	Content-Type：默认为"application/json"
 	Accept： 默认为"application/json"
 	Authorization：添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串
-	token：服务内部请求认证的token，如果只有一个token字符串，则会设置为"token "+token，默认为空
+	token：服务内部请求认证的token，设置请求头中的X-Jwt-Payload，默认为空。
 	
 	举例：
 	kwargs := map[string]interface{}{"timeout":10000}

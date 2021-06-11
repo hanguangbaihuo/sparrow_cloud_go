@@ -37,3 +37,17 @@
             // handle error
         }
     }
+
+#### token使用
+
+    //直接将获取到的token赋值给restclient包中函数的kwargs参数中的token，例如：
+    token, err := authorization.GetAppToken("YourServiceName", "ServiceSecret")
+    if err != nil {
+        // handle error
+    }
+    kwargs := map[string]interface{}{"token":token}
+    res, err := restclient.Post(serviceAddr, apiPath, data, kwargs)
+    if err != nil {
+    // do something
+    }
+    fmt.Println(string(res.Body), res.Code)
