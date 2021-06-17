@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
@@ -15,11 +16,12 @@ func init() {
 	RsaPublicKeyPath := os.Getenv("SC_JWT_PUBLIC_KEY_PATH")
 	RsaPublicKey, err := ioutil.ReadFile(RsaPublicKeyPath)
 	if err != nil {
-		panic(fmt.Sprintf("[JWT] read rsa public file err: %s", err))
+		log.Printf("[JWT] read rsa public file err: %s", err)
+		return
 	}
 	RsaPublicSecret, err = jwt.ParseRSAPublicKeyFromPEM(RsaPublicKey)
 	if err != nil {
-		panic(fmt.Sprintf("[JWT] convert rsa public key to rsa struct error: %s", err))
+		log.Printf("[JWT] convert rsa public key to rsa struct error: %s", err)
 	}
 }
 
