@@ -44,7 +44,7 @@ func TestBasicJwt(t *testing.T) {
 		t.Errorf("signed hs256 token error: %s\n", err)
 	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusOK)
 
 	// test rs256 token
@@ -58,7 +58,7 @@ func TestBasicJwt(t *testing.T) {
 	}
 	// t.Logf("rsa 256 token is %s\n", tokenString)
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusOK)
 }
 func TestEmptyToken(t *testing.T) {
@@ -97,7 +97,7 @@ func TestExpireToken(t *testing.T) {
 		t.Errorf("signed hs256 token error: %s\n", err)
 	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusUnauthorized).Body().Contains("expired")
 
 	// test rs256 token
@@ -110,7 +110,7 @@ func TestExpireToken(t *testing.T) {
 		t.Errorf("signed rs256 token error: %s\n", err)
 	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusUnauthorized).Body().Contains("expired")
 }
 
@@ -135,13 +135,13 @@ func TestInvalidToken(t *testing.T) {
 		t.Errorf("signed hs256 token error: %s\n", err)
 	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusUnauthorized).Body().Contains("invalid")
 
 	// test rs256 token
 	invalidRsaToken := "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOiIxMjM0YWJjIiwiZXhwIjoxNzIyMjAwMzE2LCJpYXQiOjE2MjIxOTMxMTYsImFwcF9pZCI6ImNvcmUifQ.test"
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+invalidRsaToken).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+invalidRsaToken).
 		Expect().Status(iris.StatusUnauthorized)
 }
 
@@ -166,7 +166,7 @@ func TestPayloadHeader(t *testing.T) {
 		t.Errorf("signed hs256 token error: %s\n", err)
 	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusOK).Body().Contains("pong")
 
 	// test rs256 token header
@@ -179,6 +179,6 @@ func TestPayloadHeader(t *testing.T) {
 		t.Errorf("signed rs256 token error: %s\n", err)
 	}
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Tokentest "+tokenString).
+	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
 		Expect().Status(iris.StatusOK)
 }
