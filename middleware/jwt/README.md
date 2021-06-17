@@ -21,7 +21,7 @@
 
     必须配置的环境变量：
     JWT_SECRET：jwt密钥
-    PUBLIC_KEY_PATH：rsa签名公钥文件路径
+    SC_JWT_PUBLIC_KEY_PATH：rsa签名公钥文件路径
 
     JWT中间件只会对携带jwt token的数据进行验证，
     如果token过期或者解析无效则直接返回错误
