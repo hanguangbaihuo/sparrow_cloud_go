@@ -4,9 +4,9 @@
 ### 测试运行 ###
 
     运行所有测试:
-        go test ./...
+        go test ./... -v
     运行单个测试:
-        go ....
+        go test ./middleware/auth/ -v
 
 ### Iris middleware ###
 
@@ -14,7 +14,7 @@
 * [AUTH Middleware](/middleware/auth/README.md) : 认证用户ID
 * [AccessControl Middleware](/middleware/accesscontrol/README.md) : 访问控制
 * [Opentracing Middleware](/middleware/opentracing/README.md) : 追踪链中间件，配合restclient使用，追踪链注入由envoy完成
-* [FrontLock Middleware](/middleware/frontlock/README.md) : 前端防重复提及锁中间件
+* [FrontLock Middleware](/middleware/frontlock/README.md) : 前端防重复提交锁中间件
 
 ### restclient ###
 
