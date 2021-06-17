@@ -1,6 +1,26 @@
 # Changelog
 项目更改记录
 
+## [0.12.0]
+### Changed
+- jwt middleware
+- auth middleware
+- accesscontrol middleware
+- restclient
+- GetAppToken and GetUserToken in authorization
+
+## [0.11.3]
+### Changed
+- add token key for restclient kwargs parameter
+
+## [0.11.2]
+### Changed
+- update swag package
+
+## [0.11.1]
+### Changed
+- fix the bug in auth middleware
+
 ## [0.11.0]
 ### Added
 - frontlock middleware
