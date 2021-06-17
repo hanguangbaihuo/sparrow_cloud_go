@@ -1,11 +1,11 @@
 package jwt
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hanguangbaihuo/sparrow_cloud_go/utils"
@@ -99,7 +99,7 @@ func New(cfg ...Config) *Middleware {
 	// if c.ContextKey == "" {
 	// 	c.ContextKey = DefaultContextKey
 	// }
-	c.ContextKey = DefaultContextKey
+	// c.ContextKey = DefaultContextKey
 
 	if c.ErrorHandler == nil {
 		c.ErrorHandler = OnError
@@ -120,17 +120,20 @@ func New(cfg ...Config) *Middleware {
 func DefaultJwtMiddleware(jwtSecret string) *Middleware {
 	return New(Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwtSecret), nil
+			method, ok := token.Header["alg"].(string)
+			if ok {
+				return GetSecret(method)
+			}
+			return []byte(""), fmt.Errorf("[JWT] signing method (alg) is unspecified.")
 		},
 		CredentialsOptional: true,
-		SigningMethod:       SigningMethodHS256,
 	})
 }
 
 // Get returns the user (&token) information for this client/request
-func (m *Middleware) Get(ctx context.Context) *jwt.Token {
-	return ctx.Values().Get(m.Config.ContextKey).(*jwt.Token)
-}
+// func (m *Middleware) Get(ctx context.Context) *jwt.Token {
+// 	return ctx.Values().Get(m.Config.ContextKey).(*jwt.Token)
+// }
 
 // Serve the middleware's action
 func (m *Middleware) Serve(ctx context.Context) {
@@ -146,17 +149,15 @@ func (m *Middleware) Serve(ctx context.Context) {
 
 // AutoServe the jwt middleware's action
 func AutoServe(ctx context.Context) {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	if jwtSecret == "" {
-		utils.LogErrorf(ctx, "[JWT] can not get JWT_SECRET from environment, must configure it!")
-		panic("[JWT] can not get JWT_SECRET from environment, must configure it!")
-	}
 	m := New(Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte(jwtSecret), nil
+			method, ok := token.Header["alg"].(string)
+			if ok {
+				return GetSecret(method)
+			}
+			return []byte(""), fmt.Errorf("[JWT] signing method (alg) is unspecified.")
 		},
 		CredentialsOptional: true,
-		SigningMethod:       SigningMethodHS256,
 	})
 	_, err := m.CheckJWT(ctx)
 	if err != nil {
@@ -299,23 +300,24 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		return nil, ErrTokenInvalid
 	}
 
-	if m.Config.Expiration {
-		if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
-			if expired := claims.VerifyExpiresAt(time.Now().Unix(), true); !expired {
-				utils.LogDebugf(ctx, "[JWT] Token is expired")
-				return nil, ErrTokenExpired
-			}
-		}
-	}
-
 	utils.LogDebugf(ctx, "[JWT] JWT: %v", parsedToken)
 
 	// only when toke is not empty and valid, we will storage it
-	ctx.Values().Set(RawTokenKey, token)
+	// ctx.Values().Set(RawTokenKey, token)
+
+	// parsedToken.Claims.(MapClaims)
+	payload, err := json.Marshal(parsedToken.Claims)
+	if err != nil {
+		utils.LogDebugf(ctx, "[JWT] json marshal parsed token error: %v", err)
+		return parsedToken, err
+	}
+	b64Payload := base64.StdEncoding.EncodeToString(payload)
+
+	ctx.Request().Header.Set("X-Jwt-Payload", b64Payload)
 
 	// If we get here, everything worked and we can set the
 	// user property in context.
-	ctx.Values().Set(m.Config.ContextKey, parsedToken)
+	// ctx.Values().Set(m.Config.ContextKey, parsedToken)
 
 	return parsedToken, nil
 }

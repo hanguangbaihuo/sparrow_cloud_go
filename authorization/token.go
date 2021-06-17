@@ -2,7 +2,6 @@ package authorization
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -19,11 +18,6 @@ import (
 var (
 	ctx = context.Background()
 )
-
-type TokenData struct {
-	Token     string `json:"token"`
-	ExpiresIn int    `json:"expires_in"`
-}
 
 func GetAppToken(svcName string, svcSecret string) (string, error) {
 	key := getAppKey(svcSecret)
@@ -55,20 +49,15 @@ func GetAppToken(svcName string, svcSecret string) (string, error) {
 		log.Printf("get app token occur error, code %v, body %v\n", res.Code, string(res.Body))
 		return "", errors.New(string(res.Body))
 	}
-	var tokenData TokenData
-	err = json.Unmarshal(res.Body, &tokenData)
-	if err != nil {
-		log.Printf("unmarshal token occur error %v\n", err)
-		return "", err
-	}
+
 	// 若配置redis缓存，则将结果缓存
 	if tokenCache != nil {
-		timeout := tokenData.ExpiresIn - 120
-		if err := tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second).Err(); err != nil {
+		// timeout := tokenData.ExpiresIn - 120
+		if err := tokenCache.SetEX(ctx, key, string(res.Body), time.Duration(7200)*time.Second).Err(); err != nil {
 			log.Printf("setex app token to cache err %s\n", err)
 		}
 	}
-	return tokenData.Token, nil
+	return string(res.Body), nil
 }
 
 func GetUserToken(svcName string, svcSecret string, userID string) (string, error) {
@@ -103,20 +92,15 @@ func GetUserToken(svcName string, svcSecret string, userID string) (string, erro
 		log.Printf("get user token occur error, code %v, body %v\n", res.Code, string(res.Body))
 		return "", errors.New(string(res.Body))
 	}
-	var tokenData TokenData
-	err = json.Unmarshal(res.Body, &tokenData)
-	if err != nil {
-		log.Printf("unmarshal token occur error %v\n", err)
-		return "", err
-	}
+
 	// 若配置redis缓存，则将结果缓存
 	if tokenCache != nil {
-		timeout := tokenData.ExpiresIn - 120
-		if err := tokenCache.SetEX(ctx, key, tokenData.Token, time.Duration(timeout)*time.Second).Err(); err != nil {
+		// timeout := tokenData.ExpiresIn - 120
+		if err := tokenCache.SetEX(ctx, key, string(res.Body), time.Duration(7200)*time.Second).Err(); err != nil {
 			log.Printf("setex user token to cache err %s\n", err)
 		}
 	}
-	return tokenData.Token, nil
+	return string(res.Body), nil
 }
 
 func getAppKey(svcSecret string) string {

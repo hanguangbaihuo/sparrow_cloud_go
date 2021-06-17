@@ -63,8 +63,16 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	}
 	token, ok := kwarg["token"].(string)
 	if ok {
-		validToken := checkAuthorization(token)
-		req.Header.Set("Authorization", validToken)
+		req.Header.Set("X-Jwt-Payload", token)
+		var token_data map[string]interface{}
+		err := json.Unmarshal([]byte(token), &token_data)
+		if err != nil {
+			log.Printf("unmarshal token %v error: %s\n", token, err)
+		}
+		t, ok := token_data["token"].(string)
+		if ok {
+			req.Header.Set("Authorization", "token "+t)
+		}
 	}
 	authorization, ok := kwarg["Authorization"].(string)
 	if ok {
@@ -150,22 +158,6 @@ func getEnvProxy() *url.URL {
 		return proxyURL
 	}
 	return nil
-}
-
-func checkAuthorization(authcode string) string {
-	rawCode := strings.TrimSpace(authcode)
-	codes := strings.Split(rawCode, " ")
-	if len(codes) > 2 { // invalid Authorization header
-		return ""
-	} else if len(codes) < 2 {
-		if rawCode != "" { // only token without token key
-			return "token " + rawCode
-		}
-		// if authcode is empty, len(code) also will return 1
-		return ""
-	} else {
-		return rawCode
-	}
 }
 
 func Get(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (Response, error) {

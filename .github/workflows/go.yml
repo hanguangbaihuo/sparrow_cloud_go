@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master, pro ]
   pull_request:
-    branches: [ master, pro ]
+    branches: [ dev, master, pro ]
 
 jobs:
 
@@ -17,6 +17,10 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.15
+    
+    - name: Set env
+      env:
+        SC_JWT_PUBLIC_KEY_PATH: ./rsa_public.pem
 
     - name: Test
       run: go test -v ./...

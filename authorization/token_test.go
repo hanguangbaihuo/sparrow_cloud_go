@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"encoding/json"
 	"os"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 func MockPostSucc(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (restclient.Response, error) {
-	return restclient.Response{Code: 200, Body: []byte(`{"token":"abc123","expires_in":7200}`)}, nil
+	return restclient.Response{Code: 200, Body: []byte(`{"app_id":"core","uid":"123abc","exp":123456}`)}, nil
 }
 
 func MockPostFail(serviceAddr string, apiPath string, payload interface{}, kwargs ...map[string]interface{}) (restclient.Response, error) {
@@ -25,7 +26,10 @@ func TestAppTokenSucc(t *testing.T) {
 	defer patches.Reset()
 	token, err := GetAppToken("MockTest", "MockSecret")
 	assert.Nil(t, err)
-	assert.Equal(t, "abc123", token, "token not equal")
+	var payload map[string]interface{}
+	err = json.Unmarshal([]byte(token), &payload)
+	assert.Nil(t, err)
+	assert.Contains(t, payload, "app_id")
 }
 
 func TestAppTokenFail(t *testing.T) {
@@ -47,7 +51,10 @@ func TestUserTokenSucc(t *testing.T) {
 	defer patches.Reset()
 	token, err := GetUserToken("MockTest", "MockSecret", "MockUserID")
 	assert.Nil(t, err)
-	assert.Equal(t, "abc123", token, "token not equal")
+	var payload map[string]interface{}
+	err = json.Unmarshal([]byte(token), &payload)
+	assert.Nil(t, err)
+	assert.Contains(t, payload, "uid")
 }
 
 func TestUserTokenFail(t *testing.T) {
