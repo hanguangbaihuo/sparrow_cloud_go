@@ -12,7 +12,7 @@ import (
 var RsaPublicSecret *rsa.PublicKey
 
 func init() {
-	RsaPublicKeyPath := os.Getenv("PUBLIC_KEY_PATH")
+	RsaPublicKeyPath := os.Getenv("SC_JWT_PUBLIC_KEY_PATH")
 	RsaPublicKey, err := ioutil.ReadFile(RsaPublicKeyPath)
 	if err != nil {
 		panic(fmt.Sprintf("[JWT] read rsa public file err: %s", err))
