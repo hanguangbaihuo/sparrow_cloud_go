@@ -21,7 +21,7 @@ jobs:
     - name: Set env
       uses: actions/setup-go@v2
       env:
-        SC_JWT_PUBLIC_KEY_PATH: ./rsa_public.pem
+        SC_JWT_PUBLIC_KEY_PATH: ./middleware/jwt/rsa_public.pem
 
     - name: Test
       run: go test -v ./...
