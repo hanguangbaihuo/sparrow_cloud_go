@@ -25,5 +25,5 @@ jobs:
 
     - name: Test
       env:
-        SC_JWT_PUBLIC_KEY_PATH: ./middleware/jwt/rsa_public.pem
+        SC_JWT_PUBLIC_KEY_PATH: ./rsa_public.pem
       run: go test -v ./...
