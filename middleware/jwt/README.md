@@ -14,6 +14,8 @@
 
     // 下列使用方式将会废弃
     // jwtMiddleware := jwt.DefaultJwtMiddleware("your_jwt_secret")
+    // 如果仍然采用该种方式，请修改成下面行，不再携带参数。密钥永久从环境变量获取
+    // jwtMiddleware := jwt.DefaultJwtMiddleware()
     // app.Use(jwtMiddleware.Serve)
     ```
 

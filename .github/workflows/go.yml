@@ -18,9 +18,12 @@ jobs:
       with:
         go-version: 1.15
     
-    - name: Set env
-      env:
-        SC_JWT_PUBLIC_KEY_PATH: ./rsa_public.pem
+    # - name: Set env
+    #   uses: actions/setup-go@v2
+    #   env:
+    #     SC_JWT_PUBLIC_KEY_PATH: ./middleware/jwt/rsa_public.pem
 
     - name: Test
+      env:
+        SC_JWT_PUBLIC_KEY_PATH: ./rsa_public.pem
       run: go test -v ./...

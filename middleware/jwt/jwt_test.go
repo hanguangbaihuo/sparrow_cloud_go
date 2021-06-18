@@ -1,7 +1,7 @@
 package jwt
 
 // go test -mod=vendor ./middleware/jwt/ -v
-// before run test, export PUBLIC_KEY_PATH="./rsa_public.pem"
+// before run test, export SC_JWT_PUBLIC_KEY_PATH="./rsa_public.pem"
 
 import (
 	"io/ioutil"

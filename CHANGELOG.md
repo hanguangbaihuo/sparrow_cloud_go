@@ -1,5 +1,8 @@
 # Changelog
 项目更改记录
+## [0.12.1]
+### Changed
+- remove secret parameter from DefaultJwtMiddleware in jwt middleware
 
 ## [0.12.0]
 ### Changed
