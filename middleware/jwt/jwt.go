@@ -114,10 +114,7 @@ func New(cfg ...Config) *Middleware {
 }
 
 // DefaultJwtMiddleware return default iris jwt middleware
-// use like this:
-// jwtMiddleware := DefultJwtMiddleware("your_jwt_secret")
-// app.Use(jwtMiddleware.Serve)
-func DefaultJwtMiddleware(jwtSecret string) *Middleware {
+func DefaultJwtMiddleware() *Middleware {
 	return New(Config{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			method, ok := token.Header["alg"].(string)
