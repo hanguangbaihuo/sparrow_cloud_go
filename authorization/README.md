@@ -9,6 +9,8 @@
     必须配置环境变量:
     SC_MANAGE_SVC
     SC_MANAGE_API
+    配置下面环境为true跳过缓存
+    SC_SKIP_TOKEN_CACHE
 
 #### 获取app_token
 
