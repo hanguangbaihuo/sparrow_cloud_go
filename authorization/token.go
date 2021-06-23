@@ -2,6 +2,7 @@ package authorization
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -22,8 +23,8 @@ var (
 func GetAppToken(svcName string, svcSecret string) (string, error) {
 	key := getAppKey(svcSecret)
 	tokenCache := cache.GetOrNil()
-	// 若配置redis缓存，先从缓存中获取
-	if tokenCache != nil {
+	// 若配置redis缓存且配置不跳过缓存，先从缓存中获取
+	if tokenCache != nil && strings.ToLower(os.Getenv("SC_SKIP_TOKEN_CACHE")) != "true" {
 		value, err := tokenCache.Get(ctx, key).Result()
 		if err != nil {
 			log.Printf("get app token from cache is %s, set it later\n", err)
@@ -52,8 +53,18 @@ func GetAppToken(svcName string, svcSecret string) (string, error) {
 
 	// 若配置redis缓存，则将结果缓存
 	if tokenCache != nil {
-		// timeout := tokenData.ExpiresIn - 120
-		if err := tokenCache.SetEX(ctx, key, string(res.Body), time.Duration(7200)*time.Second).Err(); err != nil {
+		var tokenData map[string]interface{}
+		var timeout int
+		var ok bool
+		if err := json.Unmarshal(res.Body, &tokenData); err != nil {
+			timeout = 7200
+		} else {
+			timeout, ok = tokenData["expires_in"].(int)
+			if !ok {
+				timeout = 7200
+			}
+		}
+		if err := tokenCache.SetEX(ctx, key, string(res.Body), time.Duration(timeout)*time.Second).Err(); err != nil {
 			log.Printf("setex app token to cache err %s\n", err)
 		}
 	}
@@ -63,8 +74,8 @@ func GetAppToken(svcName string, svcSecret string) (string, error) {
 func GetUserToken(svcName string, svcSecret string, userID string) (string, error) {
 	key := getUserKey(userID)
 	tokenCache := cache.GetOrNil()
-	// 若配置redis缓存，先从缓存中获取
-	if tokenCache != nil {
+	// 若配置redis缓存且配置不跳过缓存，先从缓存中获取
+	if tokenCache != nil && strings.ToLower(os.Getenv("SC_SKIP_TOKEN_CACHE")) != "true" {
 		value, err := tokenCache.Get(ctx, key).Result()
 		if err != nil {
 			log.Printf("get user token from cache is %s, set it later\n", err)
@@ -95,8 +106,18 @@ func GetUserToken(svcName string, svcSecret string, userID string) (string, erro
 
 	// 若配置redis缓存，则将结果缓存
 	if tokenCache != nil {
-		// timeout := tokenData.ExpiresIn - 120
-		if err := tokenCache.SetEX(ctx, key, string(res.Body), time.Duration(7200)*time.Second).Err(); err != nil {
+		var tokenData map[string]interface{}
+		var timeout int
+		var ok bool
+		if err := json.Unmarshal(res.Body, &tokenData); err != nil {
+			timeout = 7200
+		} else {
+			timeout, ok = tokenData["expires_in"].(int)
+			if !ok {
+				timeout = 7200
+			}
+		}
+		if err := tokenCache.SetEX(ctx, key, string(res.Body), time.Duration(timeout)*time.Second).Err(); err != nil {
 			log.Printf("setex user token to cache err %s\n", err)
 		}
 	}

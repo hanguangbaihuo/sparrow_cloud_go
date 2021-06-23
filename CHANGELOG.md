@@ -1,5 +1,9 @@
 # Changelog
 项目更改记录
+## [0.12.2]
+### Changed
+- add SC_SKIP_TOKEN_CACHE to skip cache in GetAppToken and GetUserToken
+
 ## [0.12.1]
 ### Changed
 - remove secret parameter from DefaultJwtMiddleware in jwt middleware
