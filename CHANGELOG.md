@@ -1,5 +1,9 @@
 # Changelog
 项目更改记录
+## [0.12.3]
+### Added
+- cors middleware
+
 ## [0.12.2]
 ### Changed
 - add SC_SKIP_TOKEN_CACHE to skip cache in GetAppToken and GetUserToken
