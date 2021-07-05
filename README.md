@@ -15,6 +15,7 @@
 * [AccessControl Middleware](/middleware/accesscontrol/README.md) : 访问控制
 * [Opentracing Middleware](/middleware/opentracing/README.md) : 追踪链中间件，配合restclient使用，追踪链注入由envoy完成
 * [FrontLock Middleware](/middleware/frontlock/README.md) : 前端防重复提交锁中间件
+* [Cors Middleware](/middleware/cors/README.md) : 跨域中间件
 
 ### restclient ###
 
