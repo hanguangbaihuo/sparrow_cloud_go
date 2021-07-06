@@ -99,6 +99,7 @@
             "sparrow-schema-svc.frontend:8001", //此处是swagger服务的名称
             "/api/schema_i/register/", //此处为swagger服务的api接口
             "YourServiceName", //该名称需要设置为你的服务的名称
+            []string{"waro163","qq"}, //项目的贡献者，便于前端查看接口文档联系项目维护人
         }
         err := swag.Build(cfg, swagcfg)
         if err != nil {
