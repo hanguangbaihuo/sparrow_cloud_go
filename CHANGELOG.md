@@ -1,5 +1,9 @@
 # Changelog
 项目更改记录
+## [0.12.4]
+### Changed
+- add contributors to swag
+
 ## [0.12.3]
 ### Added
 - cors middleware
