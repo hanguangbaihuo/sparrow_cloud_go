@@ -44,7 +44,7 @@ func Build(config Config, svcConfig ServiceConfig) error {
 		Swagger:      swagger.Swagger,
 		Info:         swagger.Info,
 		Paths:        swagger.Paths,
-		Contributors: []string{},
+		Contributors: svcConfig.Contributors,
 		ServiceName:  svcConfig.ServiceName,
 	}
 

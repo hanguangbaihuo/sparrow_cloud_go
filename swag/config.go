@@ -86,4 +86,6 @@ type ServiceConfig struct {
 	APIPath string
 	// ServiceName is the service name, used for app_name
 	ServiceName string
+	// Contributors is Contributors of the service
+	Contributors []string
 }
