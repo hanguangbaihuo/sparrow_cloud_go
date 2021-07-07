@@ -1,5 +1,9 @@
-# Changelog
 项目更改记录
+# Changelog
+## [0.12.5]
+### Added
+- support []byte type payload in restclient
+
 ## [0.12.4]
 ### Changed
 - add contributors to swag

@@ -69,7 +69,7 @@
 	参数用途：
 	serviceAddr：跨服务调用的服务地址，格式类似"sparrow-product-svc:8001"或者"127.0.0.1:8000"
 	apiPath：请求服务的api，格式类似"/api/sparrow_products/products/create/"
-	payload：请求服务接口所需要的数据
+	payload：请求服务接口所需要的数据。如果为[]byte类型，则直接将数据原装发送。
 	kwargs：用来添加一些额外信息，见下方的kwargs详解
 	
 ##### 方法参数中kwargs详解
