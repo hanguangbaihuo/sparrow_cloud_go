@@ -43,10 +43,17 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 			Proxy: http.ProxyURL(proxyURL),
 		},
 	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		log.Printf("marshal payload occur error: %s\n", err)
-		return Response{}, err
+	var data []byte
+	switch payload.(type) {
+	case []byte:
+		data = payload.([]byte)
+	default:
+		var err error
+		data, err = json.Marshal(payload)
+		if err != nil {
+			log.Printf("marshal payload occur error: %s\n", err)
+			return Response{}, err
+		}
 	}
 	body := bytes.NewReader(data)
 	req, err := http.NewRequest(strings.ToUpper(method), destURL, body)
