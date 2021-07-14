@@ -1,5 +1,10 @@
 项目更改记录
 # Changelog
+## [0.12.6]
+### Changed
+- remove setting Authorization header in rest_client when having token parameter
+- remove HS256 decode jwt token from jwt middleware
+
 ## [0.12.5]
 ### Added
 - support []byte type payload in restclient
