@@ -1,7 +1,12 @@
 package jwt
 
 // go test -mod=vendor ./middleware/jwt/ -v
-// before run test, export SC_JWT_PUBLIC_KEY_PATH="./rsa_public.pem"
+// before run test, export SC_JWT_PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
+// MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC7+4QItsupVxhgRuhUKVHx+AMS
+// TEtO0Jv2mWUo7oTmLY9OzSaqpOGWrlfAzWy2fuZFvlxDhKr+ow0Rd7cAdrG88+PQ
+// DWoLa8NH9N2sNubmJBEc6l0SdmhaFSVhjMXDT50dpE/eHKNHWJbVvTufOoFP8Sl3
+// OBSIpEmtUN/2VC8Q0wIDAQAB
+// -----END PUBLIC KEY-----'
 
 import (
 	"io/ioutil"
@@ -25,7 +30,7 @@ var (
 
 func TestBasicJwt(t *testing.T) {
 	var app = iris.New()
-	os.Setenv("JWT_SECRET", string(jwtSecret))
+	// os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
 		ctx.JSON(context.Map{"message": "pong"})
@@ -34,25 +39,25 @@ func TestBasicJwt(t *testing.T) {
 	app.Get("/secured/ping", AutoServe, handlePing)
 	e := httptest.New(t, app)
 
-	// test hs256 token
-	token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
-		"exp": time.Now().Unix() + 100,
-		"uid": "abc123",
-	})
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		t.Errorf("signed hs256 token error: %s\n", err)
-	}
+	// // test hs256 token
+	// token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
+	// 	"exp": time.Now().Unix() + 100,
+	// 	"uid": "abc123",
+	// })
+	// tokenString, err := token.SignedString(jwtSecret)
+	// if err != nil {
+	// 	t.Errorf("signed hs256 token error: %s\n", err)
+	// }
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
-		Expect().Status(iris.StatusOK)
+	// e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
+	// 	Expect().Status(iris.StatusOK)
 
 	// test rs256 token
-	token = NewTokenWithClaims(SigningMethodRS256, MapClaims{
+	token := NewTokenWithClaims(SigningMethodRS256, MapClaims{
 		"exp": time.Now().Unix() + 100,
 		"uid": "abc123",
 	})
-	tokenString, err = token.SignedString(rsaPrivateSecret)
+	tokenString, err := token.SignedString(rsaPrivateSecret)
 	if err != nil {
 		t.Errorf("signed rs256 token error: %s\n", err)
 	}
@@ -78,7 +83,7 @@ func TestEmptyToken(t *testing.T) {
 
 func TestExpireToken(t *testing.T) {
 	var app = iris.New()
-	os.Setenv("JWT_SECRET", string(jwtSecret))
+	// os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
 		ctx.JSON(context.Map{"message": "pong"})
@@ -87,25 +92,25 @@ func TestExpireToken(t *testing.T) {
 	app.Get("/secured/ping", AutoServe, handlePing)
 	e := httptest.New(t, app)
 
-	// test hs256 token
-	token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
-		"exp": time.Now().Unix() - 100,
-		"uid": "abc123",
-	})
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		t.Errorf("signed hs256 token error: %s\n", err)
-	}
+	// // test hs256 token
+	// token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
+	// 	"exp": time.Now().Unix() - 100,
+	// 	"uid": "abc123",
+	// })
+	// tokenString, err := token.SignedString(jwtSecret)
+	// if err != nil {
+	// 	t.Errorf("signed hs256 token error: %s\n", err)
+	// }
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
-		Expect().Status(iris.StatusUnauthorized).Body().Contains("expired")
+	// e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
+	// 	Expect().Status(iris.StatusUnauthorized).Body().Contains("expired")
 
 	// test rs256 token
-	token = NewTokenWithClaims(SigningMethodRS256, MapClaims{
+	token := NewTokenWithClaims(SigningMethodRS256, MapClaims{
 		"exp": time.Now().Unix() - 200,
 		"uid": "abc123",
 	})
-	tokenString, err = token.SignedString(rsaPrivateSecret)
+	tokenString, err := token.SignedString(rsaPrivateSecret)
 	if err != nil {
 		t.Errorf("signed rs256 token error: %s\n", err)
 	}
@@ -116,7 +121,7 @@ func TestExpireToken(t *testing.T) {
 
 func TestInvalidToken(t *testing.T) {
 	var app = iris.New()
-	os.Setenv("JWT_SECRET", string(jwtSecret))
+	// os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
 		ctx.JSON(context.Map{"message": "pong"})
@@ -125,21 +130,21 @@ func TestInvalidToken(t *testing.T) {
 	app.Get("/secured/ping", AutoServe, handlePing)
 	e := httptest.New(t, app)
 
-	// test hs256 token
-	token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
-		"exp": time.Now().Unix() + 500,
-		"uid": "abc123",
-	})
-	tokenString, err := token.SignedString([]byte("wrongjwtSecret"))
-	if err != nil {
-		t.Errorf("signed hs256 token error: %s\n", err)
-	}
+	// // test hs256 token
+	// token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
+	// 	"exp": time.Now().Unix() + 500,
+	// 	"uid": "abc123",
+	// })
+	// tokenString, err := token.SignedString([]byte("wrongjwtSecret"))
+	// if err != nil {
+	// 	t.Errorf("signed hs256 token error: %s\n", err)
+	// }
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
-		Expect().Status(iris.StatusUnauthorized).Body().Contains("invalid")
+	// e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
+	// 	Expect().Status(iris.StatusUnauthorized).Body().Contains("invalid")
 
 	// test rs256 token
-	invalidRsaToken := "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOiIxMjM0YWJjIiwiZXhwIjoxNzIyMjAwMzE2LCJpYXQiOjE2MjIxOTMxMTYsImFwcF9pZCI6ImNvcmUifQ.test"
+	invalidRsaToken := "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOiIxMjM0YWJjIiwiZXhwIjoxNzIyMjAwMzE2LCJpYXQiOjE2MjIxOTMxMTYsImFwcF9pZCI6ImNvcmUifQ.invalidVarifySignture"
 
 	e.GET("/secured/ping").WithHeader("Authorization", "Token "+invalidRsaToken).
 		Expect().Status(iris.StatusUnauthorized)
@@ -148,7 +153,7 @@ func TestInvalidToken(t *testing.T) {
 // test X-Jwt-Payload header the jwt middleware generate
 func TestPayloadHeader(t *testing.T) {
 	var app = iris.New()
-	os.Setenv("JWT_SECRET", string(jwtSecret))
+	// os.Setenv("JWT_SECRET", string(jwtSecret))
 
 	handlePing := func(ctx context.Context) {
 		ctx.JSON(context.Map{"message": "pong"})
@@ -156,25 +161,25 @@ func TestPayloadHeader(t *testing.T) {
 
 	app.Get("/secured/ping", AutoServe, auth.IsAuthenticated, handlePing)
 	e := httptest.New(t, app)
-	//test hs256 token header
-	token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
-		"exp": time.Now().Unix() + 100,
-		"uid": "abc123",
-	})
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		t.Errorf("signed hs256 token error: %s\n", err)
-	}
+	// //test hs256 token header
+	// token := NewTokenWithClaims(SigningMethodHS256, MapClaims{
+	// 	"exp": time.Now().Unix() + 100,
+	// 	"uid": "abc123",
+	// })
+	// tokenString, err := token.SignedString(jwtSecret)
+	// if err != nil {
+	// 	t.Errorf("signed hs256 token error: %s\n", err)
+	// }
 
-	e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
-		Expect().Status(iris.StatusOK).Body().Contains("pong")
+	// e.GET("/secured/ping").WithHeader("Authorization", "Token "+tokenString).
+	// 	Expect().Status(iris.StatusOK).Body().Contains("pong")
 
 	// test rs256 token header
-	token = NewTokenWithClaims(SigningMethodRS256, MapClaims{
+	token := NewTokenWithClaims(SigningMethodRS256, MapClaims{
 		"exp": time.Now().Unix() + 100,
 		"uid": "abc123",
 	})
-	tokenString, err = token.SignedString(rsaPrivateSecret)
+	tokenString, err := token.SignedString(rsaPrivateSecret)
 	if err != nil {
 		t.Errorf("signed rs256 token error: %s\n", err)
 	}
