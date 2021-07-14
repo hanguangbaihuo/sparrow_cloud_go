@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -308,9 +307,10 @@ func (m *Middleware) CheckJWT(ctx context.Context) (*jwt.Token, error) {
 		utils.LogDebugf(ctx, "[JWT] json marshal parsed token error: %v", err)
 		return parsedToken, err
 	}
-	b64Payload := base64.StdEncoding.EncodeToString(payload)
+	// b64Payload := base64.StdEncoding.EncodeToString(payload)
+	// ctx.Request().Header.Set("X-Jwt-Payload", b64Payload)
 
-	ctx.Request().Header.Set("X-Jwt-Payload", b64Payload)
+	ctx.Request().Header.Set("X-Jwt-Payload", string(payload))
 
 	// If we get here, everything worked and we can set the
 	// user property in context.
