@@ -71,15 +71,6 @@ func request(method string, serviceAddr string, apiPath string, timeout int64, p
 	token, ok := kwarg["token"].(string)
 	if ok {
 		req.Header.Set("X-Jwt-Payload", token)
-		var token_data map[string]interface{}
-		err := json.Unmarshal([]byte(token), &token_data)
-		if err != nil {
-			log.Printf("unmarshal token %v error: %s\n", token, err)
-		}
-		t, ok := token_data["token"].(string)
-		if ok {
-			req.Header.Set("Authorization", "token "+t)
-		}
 	}
 	authorization, ok := kwarg["Authorization"].(string)
 	if ok {

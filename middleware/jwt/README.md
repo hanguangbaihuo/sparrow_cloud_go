@@ -11,19 +11,12 @@
     app := iris.New()
     // 全局添加中间件
     app.Use(jwt.AutoServe)
-
-    // 下列使用方式将会废弃
-    // jwtMiddleware := jwt.DefaultJwtMiddleware("your_jwt_secret")
-    // 如果仍然采用该种方式，请修改成下面行，不再携带参数。密钥永久从环境变量获取
-    // jwtMiddleware := jwt.DefaultJwtMiddleware()
-    // app.Use(jwtMiddleware.Serve)
     ```
 
 #### 注意
 
-    必须配置的环境变量：
-    JWT_SECRET：jwt密钥
-    SC_JWT_PUBLIC_KEY_PATH：rsa签名公钥文件路径
+    可选配置的环境变量：
+    SC_JWT_PUBLIC_KEY：rsa签名公钥文件数据
 
     JWT中间件只会对携带jwt token的数据进行验证，
     如果token过期或者解析无效则直接返回错误
