@@ -81,14 +81,19 @@
             "message":"error"
         }
 
-#### 命令文件
+#### 命令文件swag_register.go
 
-    // cmd.go
+    // swag_register.go
+    // 自动化注册文档，文件必须是该名称，不可变动
     package main
 
     import (
         "fmt"
+        // 修改此处为你的服务的settings初始化配置，详见sparrow_iris_template模版工程文件中的settings文件夹
+        _ "sparrow_your_service/settings"
+
         "github.com/hanguangbaihuo/sparrow_cloud_go/swag"
+        "github.com/spf13/viper"
     )
 
     func main() {
@@ -96,8 +101,8 @@
         // cfg.OutputFlag = true //如果设置为true，则会在文件根目录下生成./docs/swagger.json文档
         cfg.MarkdownFilesDir = "./dir/" //该配置是当使用Description.markdown注释时，寻找md文件的公共路径，接口文档需要放在该目录下，是相对于命令文件所在位置的相对路径
         swagcfg := swag.ServiceConfig{
-            "sparrow-schema-svc.frontend:8001", //此处是swagger服务的名称
-            "/api/schema_i/register/", //此处为swagger服务的api接口
+            viper.GetString("SC_SCHEMA_SVC"), //此处是swagger服务的名称
+            viper.GetString("SC_SCHEMA_API"), //此处为swagger服务的api接口
             "YourServiceName", //该名称需要设置为你的服务的名称
             []string{"waro163","倩倩"}, //项目的贡献者，便于前端查看接口文档联系项目维护人
         }
@@ -110,4 +115,4 @@
 #### 运行示例
     
     //修改服务的代理
-    http_proxy=http://12.34.56.78:8888 go run -mod=vendor cmd.go
+    http_proxy=http://12.34.56.78:8888 go run -mod=vendor swag_register.go
