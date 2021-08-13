@@ -41,7 +41,7 @@ func CheckLock(ctx context.Context) {
 		return
 	}
 	if res.Code != 200 {
-		utils.LogErrorf(ctx, "[FrontLock] lock server response status code %d, body %s\n", res.Code, res.Code)
+		utils.LogErrorf(ctx, "[FrontLock] lock server response status code %d, body %s\n", res.Code, res.Body)
 		ctx.Next()
 		return
 	}
@@ -70,7 +70,7 @@ func UpdateLock(ctx context.Context) {
 		}{
 			Key: key,
 		}
-		_, _ = restclient.Delete(distributeLockSvc, distributeLockFrontApi, data)
+		_, _ = restclient.Patch(distributeLockSvc, distributeLockFrontApi, data)
 	} else {
 		data := struct {
 			Key string `json:"key"`
