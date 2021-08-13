@@ -1,5 +1,9 @@
 项目更改记录
 # Changelog
+## [0.12.7]
+### Changed
+- frontlock middleware
+
 ## [0.12.6]
 ### Changed
 - remove setting Authorization header in rest_client when having token parameter
