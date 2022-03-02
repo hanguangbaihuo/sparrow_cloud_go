@@ -14,6 +14,8 @@
 
 #### 获取app_token
 
+    直接返回常量字符串`{"uid":"YourServiceName"}`即可
+
     import (
 	    "github.com/hanguangbaihuo/sparrow_cloud_go/authorization"
     )
@@ -27,6 +29,8 @@
     }
 
 #### 获取user_token
+
+    直接返回常量字符串`{"uid":"用户的ID"}`即可
 
     import (
 	    "github.com/hanguangbaihuo/sparrow_cloud_go/authorization"

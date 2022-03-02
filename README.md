@@ -23,6 +23,7 @@
 
 ### authorization ###
 
+已经废弃，请勿使用该方式
 [获取访问认证token](/authorization/README.md)
 
 ### rabbitmq ###
