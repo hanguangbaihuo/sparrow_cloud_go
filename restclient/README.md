@@ -76,16 +76,25 @@
 	
 	kwargs类型是map[string]interface{}
 	其中参数包括以下几部分：
-	timeout：建立连接和发送接收数据超时设置，不填写默认为10秒，时间单位为毫秒
-	protocol：默认为"http"，构建url所用
-	headers：要传递的请求头信息，数据格式是http.Header类型
-	Content-Type：默认为"application/json"
-	Accept： 默认为"application/json"
-	Authorization：添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串
-	token：服务内部请求认证的token，设置请求头中的X-Jwt-Payload，默认为空。
+	timeout：
+		建立连接和发送接收数据超时设置，不填写默认为10秒，时间单位为毫秒
+	protocol：
+		默认为"http"，构建url所用
+	headers：
+		要传递的请求头信息，数据格式是http.Header类型
+	Content-Type：
+		默认为"application/json"
+	Accept： 
+		默认为"application/json"
+	Authorization：
+		添加到请求头中的Authorization，如果设置，则请求头中的Authorization为用户设置的字符串
+	token：
+		服务内部请求认证的token，设置请求头中的X-Jwt-Payload，默认为空。
+		该token必须为字符串格式
+		例如`{"uid":"SparrowDevops"}`或者`{"uid":"用户ID信息"}`
 	
 	举例：
-	kwargs := map[string]interface{}{"timeout":10000}
+	kwargs := map[string]interface{}{"timeout":10000,"token":`{"uid":"SparrowDevops"}`}
 	res, err := restclient.Get(serviceAddr, apiPath, nil, kwargs)
 
 #### 方法返回Response
